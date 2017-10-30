@@ -12,8 +12,8 @@ namespace FEC
         {
             //LinearTrussExample.RunExample();
             //Console.WriteLine();
-            LinearFrameExample.RunExample();
-            Console.WriteLine();
+            //LinearFrameExample.RunExample();
+            //Console.WriteLine();
             //LinearFrameTrussHybridExample.RunExample();
             //Console.WriteLine();
             NonLinearCantileverExample.RunExample();
