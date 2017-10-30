@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{81789CC1-A7A4-4D93-8BB8-523A5C12952E}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>FiniteElementsProject</RootNamespace>
+    <AssemblyName>FiniteElementsProject</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Externalconsole>true</Externalconsole>
+    <PlatformTarget>x86</PlatformTarget>
+    <DocumentationFile>bin\Debug\FiniteElementsProject.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Externalconsole>true</Externalconsole>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Assemble\Assembly.cs" />
+    <Compile Include="Assemble\IAssembly.cs" />
+    <Compile Include="Elements\Bar2D.cs" />
+    <Compile Include="Elements\Beam2D.cs" />
+    <Compile Include="Elements\BeamNL2D.cs" />
+    <Compile Include="Elements\ContactNtN2D.cs" />
+    <Compile Include="Elements\ContactNtN2Df.cs" />
+    <Compile Include="Elements\ContactNtS2D.cs" />
+    <Compile Include="Elements\ElementProperties.cs" />
+    <Compile Include="Elements\IElementProperties.cs" />
+    <Compile Include="Examples\CantileverInContact.cs" />
+    <Compile Include="Examples\LinearFrameExample.cs" />
+    <Compile Include="Examples\LinearFrameTrussHybridExample.cs" />
+    <Compile Include="Examples\LinearTrussExample.cs" />
+    <Compile Include="Examples\LinearTrussInContactExample.cs" />
+    <Compile Include="Examples\NonLinearCantileverExample.cs" />
+    <Compile Include="Examples\TwoBeamsInContactExample.cs" />
+    <Compile Include="LinearAlgebra\Matrix.cs" />
+    <Compile Include="Node\INode.cs" />
+    <Compile Include="Node\Node.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="LinearAlgebra\VectorOperations.cs" />
+    <Compile Include="Assemble\BoundaryConditionsImposition.cs" />
+    <Compile Include="LinearAlgebra\MatrixOperations.cs" />
+    <Compile Include="Elements\IElement.cs" />
+    <Compile Include="Solver\ISolver.cs" />
+    <Compile Include="Solver\Linear\ILinearSolution.cs" />
+    <Compile Include="Solver\Linear\LinearSchemes\CholeskyFactorization.cs" />
+    <Compile Include="Solver\Linear\LinearSchemes\GaussSolver.cs" />
+    <Compile Include="Solver\Linear\LinearSchemes\LUFactorization.cs" />
+    <Compile Include="Solver\Linear\LinearSchemes\PCGSolver.cs" />
+    <Compile Include="Solver\Linear\LinearSolution.cs" />
+    <Compile Include="Solver\NonLinear\INonLinearSolution.cs" />
+    <Compile Include="Solver\NonLinear\NonLinearSchemes\LoadControlledNewtonRaphson.cs" />
+    <Compile Include="Solver\NonLinear\NonLinearSolution.cs" />
+    <Compile Include="Solver\Static.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>
