@@ -43,6 +43,55 @@ namespace FEC
             return shapeFunctions;
         }
 
+        private Dictionary<string,double[]> CalculateShapeFunctionsDerivatives (double[] globalCoordinates, double[] naturalCoordinates)
+        {
+            double ksi = naturalCoordinates[0];
+            double ihta = naturalCoordinates[1];
+            double mhi = naturalCoordinates[2];
+
+            double[] dN_ksi = new double[]
+            {
+                (-1/8*(1-ihta)*(1-mhi)),
+                (1/8*(1-ihta)*(1-mhi)),
+                (1/8*(1+ihta)*(1-mhi)),
+                (-1/8*(1+ihta)*(1-mhi)),
+                (-1/8*(1-ihta)*(1+mhi)),
+                (1/8*(1-ihta)*(1+mhi)),
+                (1/8*(1+ihta)*(1+mhi)),
+                (-1/8*(1+ihta)*(1+mhi))
+            };
+
+            double[] dN_ihta = new double[]
+            {
+                (-1/8*(1-ksi)*(1-mhi)),
+                (-1/8*(1+ksi)*(1-mhi)),
+                (1/8*(1+ksi)*(1-mhi)),
+                (1/8*(1-ksi)*(1-mhi)),
+                (-1/8*(1-ksi)*(1+mhi)),
+                (-1/8*(1+ksi)*(1+mhi)),
+                (1/8*(1+ksi)*(1+mhi)),
+                (1/8*(1-ksi)*(1+mhi))
+            };
+
+            double[] dN_mhi = new double[]
+            {
+                (-1/8*(1-ksi)*(1-ihta)),
+                (-1/8*(1+ksi)*(1-ihta)),
+                (-1/8*(1+ksi)*(1+ihta)),
+                (-1/8*(1-ksi)*(1+ihta)),
+                (1/8*(1-ksi)*(1-ihta)),
+                (1/8*(1+ksi)*(1-ihta)),
+                (1/8*(1+ksi)*(1+ihta)),
+                (1/8*(1-ksi)*(1+ihta))
+            };
+
+            Dictionary<string, double[]> dN = new Dictionary<string, double[]>();
+            dN.Add("ksi", dN_ksi);
+            dN.Add("ihta", dN_ihta);
+            dN.Add("mhi", dN_mhi);
+            return dN;
+        }
+
         public double[,] CreateGlobalStiffnessMatrix()
         {
             return new double[24,24];
