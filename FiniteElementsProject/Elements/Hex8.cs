@@ -92,6 +92,71 @@ namespace FEC
             return dN;
         }
 
+        private double[,] CalculateJacobian(double[] globalCoordinates, double[] naturalCoordinates)
+        {
+            double[,] jacobianMatrix = new double[3, 3];
+            double[] xUpdated = new double[24];
+            Dictionary<string, double[]> dN = CalculateShapeFunctionsDerivatives(globalCoordinates, naturalCoordinates);
+            int k = 0;
+            for (int i = 0; i < 8; i++)
+            {
+                jacobianMatrix[0, 0] = jacobianMatrix[0, 0] + xUpdated[k] * dN["ksi"][i];
+                k = k + 3;
+            }
+            k = 1;
+            for (int i = 0; i < 8; i++)
+            {
+                jacobianMatrix[0, 1] = jacobianMatrix[0, 1] + xUpdated[k] * dN["ksi"][i];
+                k = k + 3;
+            }
+            k = 2;
+            for (int i = 0; i < 8; i++)
+            {
+                jacobianMatrix[0, 2] = jacobianMatrix[0, 2] + xUpdated[k] * dN["ksi"][i];
+                k = k + 3;
+            }
+
+            k = 0;
+            for (int i = 0; i < 8; i++)
+            {
+                jacobianMatrix[1, 0] = jacobianMatrix[1, 0] + xUpdated[k] * dN["ihta"][i];
+                k = k + 3;
+            }
+            k = 1;
+            for (int i = 0; i < 8; i++)
+            {
+                jacobianMatrix[1, 1] = jacobianMatrix[1, 1] + xUpdated[k] * dN["ihta"][i];
+                k = k + 3;
+            }
+            k = 2;
+            for (int i = 0; i < 8; i++)
+            {
+                jacobianMatrix[1, 2] = jacobianMatrix[1, 2] + xUpdated[k] * dN["ihta"][i];
+                k = k + 3;
+            }
+
+            k = 0;
+            for (int i = 0; i < 8; i++)
+            {
+                jacobianMatrix[2, 0] = jacobianMatrix[2, 0] + xUpdated[k] * dN["mhi"][i];
+                k = k + 3;
+            }
+            k = 1;
+            for (int i = 0; i < 8; i++)
+            {
+                jacobianMatrix[2, 1] = jacobianMatrix[2, 01] + xUpdated[k] * dN["ihta"][i];
+                k = k + 3;
+            }
+            k = 2;
+            for (int i = 0; i < 8; i++)
+            {
+                jacobianMatrix[2, 2] = jacobianMatrix[2, 2] + xUpdated[k] * dN["ihta"][i];
+                k = k + 3;
+            }
+
+            return jacobianMatrix;
+        }
+
         public double[,] CreateGlobalStiffnessMatrix()
         {
             return new double[24,24];
