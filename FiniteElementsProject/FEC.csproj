@@ -66,6 +66,7 @@
     <Compile Include="Elements\IElement.cs" />
     <Compile Include="Solver\ISolver.cs" />
     <Compile Include="Solver\Linear\ILinearSolution.cs" />
+    <Compile Include="Solver\Linear\LinearSchemes\BiCGSTABSolver.cs" />
     <Compile Include="Solver\Linear\LinearSchemes\CholeskyFactorization.cs" />
     <Compile Include="Solver\Linear\LinearSchemes\GaussSolver.cs" />
     <Compile Include="Solver\Linear\LinearSchemes\LUFactorization.cs" />

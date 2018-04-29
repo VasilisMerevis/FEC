@@ -24,6 +24,12 @@ namespace FEC
             //Console.WriteLine();
             TwoBeamsInContactExample.RunExample();
             Console.WriteLine();
+
+            double[,] matrixA = new double[,]
+                { { 10,1,-5 }, {-20,3,-20 }, {5,3,5 } };
+            double[] RHS = new double[] { 1, 2, 6 };
+            BiCGSTABSolver test = new BiCGSTABSolver();
+            double[] solution = test.Solve(matrixA, RHS);
         }
     }
 }
