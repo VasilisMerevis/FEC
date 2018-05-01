@@ -18,6 +18,8 @@ namespace FEC
             double[] pVector = new double[forceVector.Length];
             double[] vVector = new double[forceVector.Length];
 
+            xVector = new double[] { 1, 1, 1 };
+
             double[,] K = stiffnessMatrix;
 
             double[] bVector = forceVector;
@@ -51,6 +53,8 @@ namespace FEC
                 rho1 = -w * VectorOperations.VectorDotProduct(r0hatVector, tVector);
                 xVector = VectorOperations.VectorVectorAddition(xVector,
                     VectorOperations.VectorScalarProductNew(pVector, a));
+                xVector = VectorOperations.VectorVectorAddition(xVector,
+                    VectorOperations.VectorScalarProductNew(sVector, w));
                 rVector = VectorOperations.VectorVectorSubtraction(sVector,
                     VectorOperations.VectorScalarProductNew(tVector, w));
                 converged = VectorOperations.VectorNorm2(rVector);
