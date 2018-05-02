@@ -54,6 +54,7 @@
     <Compile Include="Examples\LinearTrussExample.cs" />
     <Compile Include="Examples\LinearTrussInContactExample.cs" />
     <Compile Include="Examples\NonLinearCantileverExample.cs" />
+    <Compile Include="Examples\NonSymmetricSystem.cs" />
     <Compile Include="Examples\TwoBeamsInContactExample.cs" />
     <Compile Include="LinearAlgebra\Matrix.cs" />
     <Compile Include="Node\INode.cs" />

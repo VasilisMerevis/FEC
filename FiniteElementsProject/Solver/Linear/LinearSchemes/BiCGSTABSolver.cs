@@ -18,8 +18,6 @@ namespace FEC
             double[] pVector = new double[forceVector.Length];
             double[] vVector = new double[forceVector.Length];
 
-            xVector = new double[] { 1, 1, 1 };
-
             double[,] K = stiffnessMatrix;
 
             double[] bVector = forceVector;
@@ -58,7 +56,7 @@ namespace FEC
                 rVector = VectorOperations.VectorVectorSubtraction(sVector,
                     VectorOperations.VectorScalarProductNew(tVector, w));
                 converged = VectorOperations.VectorNorm2(rVector);
-                if (i == iters | converged < 0.0001)
+                if (i == iters | converged < 0.00000001)
                 {
                     break;
                 }
