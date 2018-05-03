@@ -157,6 +157,39 @@ namespace FEC
             return jacobianMatrix;
         }
 
+        private double[,] CalculateInverseJacobian(double[,] jacobianMatrix)
+        {
+            double[,] jacobianInverseMatrix = new double[3, 3];
+
+            jacobianInverseMatrix[0, 0] = jacobianMatrix[1, 1] * jacobianMatrix[2, 2] - jacobianMatrix[1, 2] * jacobianMatrix[2, 1];
+            jacobianInverseMatrix[1, 1] = jacobianMatrix[2, 2] * jacobianMatrix[0, 0] - jacobianMatrix[2, 0] * jacobianMatrix[2, 2];
+            jacobianInverseMatrix[2, 2] = jacobianMatrix[0, 0] * jacobianMatrix[1, 1] - jacobianMatrix[0, 1] * jacobianMatrix[1, 0];
+
+            jacobianInverseMatrix[0, 1] = jacobianMatrix[1, 2] * jacobianMatrix[2, 0] - jacobianMatrix[1, 0] * jacobianMatrix[2, 2];
+            jacobianInverseMatrix[1, 2] = jacobianMatrix[2, 0] * jacobianMatrix[0, 1] - jacobianMatrix[2, 1] * jacobianMatrix[0, 0];
+            jacobianInverseMatrix[2, 0] = jacobianMatrix[0, 1] * jacobianMatrix[1, 2] - jacobianMatrix[0, 2] * jacobianMatrix[1, 1];
+
+            jacobianInverseMatrix[1, 0] = jacobianMatrix[2, 1] * jacobianMatrix[0, 2] - jacobianMatrix[0, 1] * jacobianMatrix[2, 2];
+            jacobianInverseMatrix[2, 1] = jacobianMatrix[0, 2] * jacobianMatrix[1, 0] - jacobianMatrix[1, 2] * jacobianMatrix[0, 0];
+            jacobianInverseMatrix[0, 2] = jacobianMatrix[1, 0] * jacobianMatrix[1, 1] - jacobianMatrix[2, 0] * jacobianMatrix[1, 1];
+
+            double detj = jacobianMatrix[0, 0] * jacobianInverseMatrix[0, 0] + jacobianMatrix[0, 1] * jacobianInverseMatrix[1, 0] + jacobianMatrix[0, 2] * jacobianInverseMatrix[2, 0];
+
+            jacobianInverseMatrix[0, 0] = jacobianInverseMatrix[0, 0] / detj;
+            jacobianInverseMatrix[1, 1] = jacobianInverseMatrix[1, 1] / detj;
+            jacobianInverseMatrix[2, 2] = jacobianInverseMatrix[2, 2] / detj;
+
+            jacobianInverseMatrix[0, 1] = jacobianInverseMatrix[0, 1] / detj;
+            jacobianInverseMatrix[1, 2] = jacobianInverseMatrix[1, 2] / detj;
+            jacobianInverseMatrix[2, 0] = jacobianInverseMatrix[2, 0] / detj;
+
+            jacobianInverseMatrix[1, 0] = jacobianInverseMatrix[1, 0] / detj;
+            jacobianInverseMatrix[2, 1] = jacobianInverseMatrix[2, 1] / detj;
+            jacobianInverseMatrix[0, 2] = jacobianInverseMatrix[0, 2] / detj;
+
+            return jacobianInverseMatrix;
+        }
+
         public double[,] CreateGlobalStiffnessMatrix()
         {
             return new double[24,24];
