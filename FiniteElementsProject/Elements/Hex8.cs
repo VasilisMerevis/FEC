@@ -190,6 +190,19 @@ namespace FEC
             return jacobianInverseMatrix;
         }
 
+        private Dictionary<int, double[]> CalculateShapeFunctionsGlobalDerivatives(Dictionary<string, double[]> dN, double[,] Jinv)
+        {
+            Dictionary<int, double[]> dNg = new Dictionary<int, double[]>();
+
+            for (int i = 0; i < 8; i++)
+            {
+                double[] dNlocal = new double[] { dN["ksi"][i], dN["ihta"][i], dN["mhi"][i] };
+                double[] dNglobal = VectorOperations.MatrixVectorProduct(Jinv, dNlocal);
+                dNg.Add(i, dNglobal);
+            }
+            return dNg;
+        }
+
         public double[,] CreateGlobalStiffnessMatrix()
         {
             return new double[24,24];
