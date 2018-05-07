@@ -203,6 +203,26 @@ namespace FEC
             return dNg;
         }
 
+        private double[] CalculateStrainsVector(Dictionary<int, double[]> dNglobal)
+        {
+            double[,] Bmatrix = new double[6, 24];
+
+            for (int i = 0; i < 8; i++)
+            {
+                Bmatrix[0, i * 3] = dNglobal[i][0];
+                Bmatrix[1, i * 3 + 1] = dNglobal[i][1];
+                Bmatrix[2, i * 3 + 2] = dNglobal[i][2];
+                Bmatrix[3, i * 3] = dNglobal[i][1];
+                Bmatrix[3, i * 3 + 1] = dNglobal[i][0];
+                Bmatrix[4, i * 3 + 1] = dNglobal[i][2];
+                Bmatrix[4, i * 3 + 2] = dNglobal[i][1];
+                Bmatrix[5, i * 3] = dNglobal[i][2];
+                Bmatrix[3, i * 3 + 2] = dNglobal[i][0];
+            }
+            double[] strains = VectorOperations.MatrixVectorProduct(Bmatrix, DisplacementVector);
+            return strains;
+        }
+
         public double[,] CreateGlobalStiffnessMatrix()
         {
             return new double[24,24];
