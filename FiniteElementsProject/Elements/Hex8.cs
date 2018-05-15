@@ -12,6 +12,7 @@ namespace FEC
         public Dictionary<int, bool[]> ElementFreedomSignature { get; } = new Dictionary<int, bool[]>();
         public List<int> ElementFreedomList { get; set; }
         public double[] DisplacementVector { get; set; }
+        public double poisson { get; set; } 
 
 
         public Hex8(IElementProperties properties, Dictionary<int, INode> nodes)
@@ -223,9 +224,32 @@ namespace FEC
             return strains;
         }
 
+        private double[,] CalculateStressStrainMatrix(double E, double v)
+        {
+            double[,] Ematrix = new double[6, 6];
+            double Ehat = E / ((1 - 2 * v) * (1 + v));
+            double G = (1 / 2) * (E / (1 + v));
+
+            Ematrix[0, 0] = Ehat * (1 - v);
+            Ematrix[0, 1] = Ehat * v;
+            Ematrix[0, 2] = Ehat * v;
+            Ematrix[1, 0] = Ehat * v;
+            Ematrix[1, 1] = Ehat * (1 - v);
+            Ematrix[1, 2] = Ehat * v;
+            Ematrix[2, 0] = Ehat * v;
+            Ematrix[2, 1] = Ehat * v;
+            Ematrix[2, 2] = Ehat * (1 - v);
+            Ematrix[3, 3] = G;
+            Ematrix[4, 4] = G;
+            Ematrix[5, 5] = G;
+            return Ematrix;
+        }
+
         public double[,] CreateGlobalStiffnessMatrix()
         {
-            return new double[24,24];
+            double[,] K;
+            double[,] E = CalculateStressStrainMatrix(Properties.YoungMod, poisson);
+
         }
 
         public double[,] CreateMassMatrix()
