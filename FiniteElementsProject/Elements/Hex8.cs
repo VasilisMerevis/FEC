@@ -44,7 +44,7 @@ namespace FEC
             return shapeFunctions;
         }
 
-        private Dictionary<string,double[]> CalculateShapeFunctionsDerivatives (double[] globalCoordinates, double[] naturalCoordinates)
+        private Dictionary<string,double[]> CalculateShapeFunctionsLocalDerivatives (double[] naturalCoordinates)
         {
             double ksi = naturalCoordinates[0];
             double ihta = naturalCoordinates[1];
@@ -97,7 +97,7 @@ namespace FEC
         {
             double[,] jacobianMatrix = new double[3, 3];
             double[] xUpdated = new double[24];
-            Dictionary<string, double[]> dN = CalculateShapeFunctionsDerivatives(globalCoordinates, naturalCoordinates);
+            Dictionary<string, double[]> dN = CalculateShapeFunctionsLocalDerivatives(naturalCoordinates);
             int k = 0;
             for (int i = 0; i < 8; i++)
             {
@@ -245,11 +245,34 @@ namespace FEC
             return Ematrix;
         }
 
+        private Tuple<double[], double[]> GaussPoints(int i, int j, int k)
+        {
+            double[] gaussPoints = new double[] { -1.0 / Math.Sqrt(3), 1.0 / Math.Sqrt(3) };
+            double[] gaussWeights = new double[] { 1.0, 1.0 };
+
+            double[] vectorWithPoints = new double[] { gaussPoints[i], gaussPoints[j], gaussPoints[k] };
+            double[] vectorWithWeights = new double[] { gaussWeights[i], gaussWeights[j], gaussWeights[k] };
+            return new Tuple<double[], double[]>(vectorWithPoints, vectorWithWeights);
+        }
+
         public double[,] CreateGlobalStiffnessMatrix()
         {
             double[,] K;
             double[,] E = CalculateStressStrainMatrix(Properties.YoungMod, poisson);
 
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    for (int k = 0; k < 2; k++)
+                    {
+                        double[] gP = GaussPoints(i, j, k).Item1;
+                        double[] gW = GaussPoints(i, j, k).Item2;
+                        
+                    }
+                }
+            }
+            return E;
         }
 
         public double[,] CreateMassMatrix()

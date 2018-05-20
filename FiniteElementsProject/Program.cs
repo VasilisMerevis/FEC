@@ -27,6 +27,7 @@ namespace FEC
 
             NonSymmetricSystem.Solve();
             Console.WriteLine();
+            Console.ReadLine();
         }
     }
 }
