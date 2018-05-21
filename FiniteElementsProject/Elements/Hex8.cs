@@ -93,11 +93,11 @@ namespace FEC
             return dN;
         }
 
-        private double[,] CalculateJacobian(double[] globalCoordinates, double[] naturalCoordinates)
+        private double[,] CalculateJacobian(Dictionary<string, double[]> dN)
         {
             double[,] jacobianMatrix = new double[3, 3];
             double[] xUpdated = new double[24];
-            Dictionary<string, double[]> dN = CalculateShapeFunctionsLocalDerivatives(naturalCoordinates);
+            
             int k = 0;
             for (int i = 0; i < 8; i++)
             {
@@ -158,7 +158,7 @@ namespace FEC
             return jacobianMatrix;
         }
 
-        private double[,] CalculateInverseJacobian(double[,] jacobianMatrix)
+        private Tuple<double[,], double> CalculateInverseJacobian(double[,] jacobianMatrix)
         {
             double[,] jacobianInverseMatrix = new double[3, 3];
 
@@ -188,7 +188,7 @@ namespace FEC
             jacobianInverseMatrix[2, 1] = jacobianInverseMatrix[2, 1] / detj;
             jacobianInverseMatrix[0, 2] = jacobianInverseMatrix[0, 2] / detj;
 
-            return jacobianInverseMatrix;
+            return new Tuple<double[,], double>(jacobianInverseMatrix, detj);
         }
 
         private Dictionary<int, double[]> CalculateShapeFunctionsGlobalDerivatives(Dictionary<string, double[]> dN, double[,] Jinv)
@@ -204,7 +204,13 @@ namespace FEC
             return dNg;
         }
 
-        private double[] CalculateStrainsVector(Dictionary<int, double[]> dNglobal)
+        private double[] CalculateStrainsVector(double[,] Bmatrix)
+        {
+            double[] strains = VectorOperations.MatrixVectorProduct(Bmatrix, DisplacementVector);
+            return strains;
+        }
+
+        private double[,] CalculateBMatrix(Dictionary<int, double[]> dNglobal)
         {
             double[,] Bmatrix = new double[6, 24];
 
@@ -220,8 +226,7 @@ namespace FEC
                 Bmatrix[5, i * 3] = dNglobal[i][2];
                 Bmatrix[3, i * 3 + 2] = dNglobal[i][0];
             }
-            double[] strains = VectorOperations.MatrixVectorProduct(Bmatrix, DisplacementVector);
-            return strains;
+            return Bmatrix;
         }
 
         private double[,] CalculateStressStrainMatrix(double E, double v)
@@ -257,7 +262,7 @@ namespace FEC
 
         public double[,] CreateGlobalStiffnessMatrix()
         {
-            double[,] K;
+            double[,] K = new double[24, 24];
             double[,] E = CalculateStressStrainMatrix(Properties.YoungMod, poisson);
 
             for (int i = 0; i < 2; i++)
@@ -268,11 +273,19 @@ namespace FEC
                     {
                         double[] gP = GaussPoints(i, j, k).Item1;
                         double[] gW = GaussPoints(i, j, k).Item2;
+                        Dictionary<string, double[]> localdN = CalculateShapeFunctionsLocalDerivatives(gP);
+                        double[,] J = CalculateJacobian(localdN);
+                        double[,] invJ = CalculateInverseJacobian(J).Item1;
+                        double detJ = CalculateInverseJacobian(J).Item2;
+                        Dictionary<int, double[]> globaldN = CalculateShapeFunctionsGlobalDerivatives(localdN, invJ);
+                        double[,] B = CalculateBMatrix(globaldN);
+                        K = MatrixOperations.MatrixAddition(K, MatrixOperations.ScalarMatrixProductNew(detJ * gW[0] * gW[1] * gW[2],
+                            MatrixOperations.MatrixProduct(MatrixOperations.Transpose(B), MatrixOperations.MatrixProduct(E, B))));
                         
                     }
                 }
             }
-            return E;
+            return K;
         }
 
         public double[,] CreateMassMatrix()
