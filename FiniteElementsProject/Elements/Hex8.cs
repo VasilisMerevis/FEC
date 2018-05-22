@@ -29,6 +29,18 @@ namespace FEC
             ElementFreedomSignature[8] = new bool[] { true, true, true, false, false, false };
         }
 
+        private double[] UpdateNodalCoordinates(double[] displacementVector)
+        {
+            double[] updatedCoor = new double[24];
+            for (int i = 1; i <= 8; i++)
+            {
+                updatedCoor[3 * i - 3] = Nodes[i].XCoordinate + displacementVector[3 * i - 3];
+                updatedCoor[3 * i - 2] = Nodes[i].YCoordinate + displacementVector[3 * i - 2];
+                updatedCoor[3 * i - 1] = Nodes[i].ZCoordinate + displacementVector[3 * i - 1];
+            }
+            return updatedCoor;
+        }
+
         private Dictionary<int, double> CalculateShapeFunctions(double ksi, double ihta, double mhi)
         {
             Dictionary<int, double> shapeFunctions = new Dictionary<int, double>();
@@ -96,7 +108,8 @@ namespace FEC
         private double[,] CalculateJacobian(Dictionary<string, double[]> dN)
         {
             double[,] jacobianMatrix = new double[3, 3];
-            double[] xUpdated = new double[24];
+            DisplacementVector = new double[24];
+            double[] xUpdated = UpdateNodalCoordinates(DisplacementVector);
             
             int k = 0;
             for (int i = 0; i < 8; i++)
