@@ -64,38 +64,38 @@ namespace FEC
 
             double[] dN_ksi = new double[]
             {
-                (-1/8*(1-ihta)*(1-mhi)),
-                (1/8*(1-ihta)*(1-mhi)),
-                (1/8*(1+ihta)*(1-mhi)),
-                (-1/8*(1+ihta)*(1-mhi)),
-                (-1/8*(1-ihta)*(1+mhi)),
-                (1/8*(1-ihta)*(1+mhi)),
-                (1/8*(1+ihta)*(1+mhi)),
-                (-1/8*(1+ihta)*(1+mhi))
+                (-1.0/8.0*(1-ihta)*(1-mhi)),
+                (1.0/8.0*(1-ihta)*(1-mhi)),
+                (1.0/8.0*(1+ihta)*(1-mhi)),
+                (-1.0/8.0*(1+ihta)*(1-mhi)),
+                (-1.0/8.0*(1-ihta)*(1+mhi)),
+                (1.0/8.0*(1-ihta)*(1+mhi)),
+                (1.0/8.0*(1+ihta)*(1+mhi)),
+                (-1.0/8.0*(1+ihta)*(1+mhi))
             };
 
             double[] dN_ihta = new double[]
             {
-                (-1/8*(1-ksi)*(1-mhi)),
-                (-1/8*(1+ksi)*(1-mhi)),
-                (1/8*(1+ksi)*(1-mhi)),
-                (1/8*(1-ksi)*(1-mhi)),
-                (-1/8*(1-ksi)*(1+mhi)),
-                (-1/8*(1+ksi)*(1+mhi)),
-                (1/8*(1+ksi)*(1+mhi)),
-                (1/8*(1-ksi)*(1+mhi))
+                (-1.0/8.0*(1-ksi)*(1-mhi)),
+                (-1.0/8.0*(1+ksi)*(1-mhi)),
+                (1.0/8.0*(1+ksi)*(1-mhi)),
+                (1.0/8.0*(1-ksi)*(1-mhi)),
+                (-1.0/8.0*(1-ksi)*(1+mhi)),
+                (-1.0/8.0*(1+ksi)*(1+mhi)),
+                (1.0/8.0*(1+ksi)*(1+mhi)),
+                (1.0/8.0*(1-ksi)*(1+mhi))
             };
 
             double[] dN_mhi = new double[]
             {
-                (-1/8*(1-ksi)*(1-ihta)),
-                (-1/8*(1+ksi)*(1-ihta)),
-                (-1/8*(1+ksi)*(1+ihta)),
-                (-1/8*(1-ksi)*(1+ihta)),
-                (1/8*(1-ksi)*(1-ihta)),
-                (1/8*(1+ksi)*(1-ihta)),
-                (1/8*(1+ksi)*(1+ihta)),
-                (1/8*(1-ksi)*(1+ihta))
+                (-1.0/8.0*(1-ksi)*(1-ihta)),
+                (-1.0/8.0*(1+ksi)*(1-ihta)),
+                (-1.0/8.0*(1+ksi)*(1+ihta)),
+                (-1.0/8.0*(1-ksi)*(1+ihta)),
+                (1.0/8.0*(1-ksi)*(1-ihta)),
+                (1.0/8.0*(1+ksi)*(1-ihta)),
+                (1.0/8.0*(1+ksi)*(1+ihta)),
+                (1.0/8.0*(1-ksi)*(1+ihta))
             };
 
             Dictionary<string, double[]> dN = new Dictionary<string, double[]>();
@@ -158,13 +158,13 @@ namespace FEC
             k = 1;
             for (int i = 0; i < 8; i++)
             {
-                jacobianMatrix[2, 1] = jacobianMatrix[2, 01] + xUpdated[k] * dN["ihta"][i];
+                jacobianMatrix[2, 1] = jacobianMatrix[2, 01] + xUpdated[k] * dN["mhi"][i];
                 k = k + 3;
             }
             k = 2;
             for (int i = 0; i < 8; i++)
             {
-                jacobianMatrix[2, 2] = jacobianMatrix[2, 2] + xUpdated[k] * dN["ihta"][i];
+                jacobianMatrix[2, 2] = jacobianMatrix[2, 2] + xUpdated[k] * dN["mhi"][i];
                 k = k + 3;
             }
 
@@ -245,18 +245,18 @@ namespace FEC
         private double[,] CalculateStressStrainMatrix(double E, double v)
         {
             double[,] Ematrix = new double[6, 6];
-            double Ehat = E / ((1 - 2 * v) * (1 + v));
-            double G = (1 / 2) * (E / (1 + v));
+            double Ehat = E / ((1.0 - 2.0 * v) * (1.0 + v));
+            double G = (1.0 / 2.0) * (E / (1.0 + v));
 
-            Ematrix[0, 0] = Ehat * (1 - v);
+            Ematrix[0, 0] = Ehat * (1.0 - v);
             Ematrix[0, 1] = Ehat * v;
             Ematrix[0, 2] = Ehat * v;
             Ematrix[1, 0] = Ehat * v;
-            Ematrix[1, 1] = Ehat * (1 - v);
+            Ematrix[1, 1] = Ehat * (1.0 - v);
             Ematrix[1, 2] = Ehat * v;
             Ematrix[2, 0] = Ehat * v;
             Ematrix[2, 1] = Ehat * v;
-            Ematrix[2, 2] = Ehat * (1 - v);
+            Ematrix[2, 2] = Ehat * (1.0 - v);
             Ematrix[3, 3] = G;
             Ematrix[4, 4] = G;
             Ematrix[5, 5] = G;
@@ -276,7 +276,7 @@ namespace FEC
         public double[,] CreateGlobalStiffnessMatrix()
         {
             double[,] K = new double[24, 24];
-            double[,] E = CalculateStressStrainMatrix(Properties.YoungMod, poisson);
+            double[,] E = CalculateStressStrainMatrix(Properties.YoungMod, 1.0/3.0);
 
             for (int i = 0; i < 2; i++)
             {

@@ -28,15 +28,19 @@ namespace FEC
             NonSymmetricSystem.Solve();
             Console.WriteLine();
 
+
+            double a = 1.0;
+            double b = 1.0;
+            double c = 1.0;
             Dictionary<int, INode> nodes = new Dictionary<int, INode>();
-            nodes[1] = new Node(1.0, -1.0, -1.0);
-            nodes[2] = new Node(1.0, 1.0, -1.0);
-            nodes[3] = new Node(-1.0, 1.0, -1.0);
-            nodes[4] = new Node(-1.0, -1.0, -1.0);
-            nodes[5] = new Node(1.0, -1.0, 1.0);
-            nodes[6] = new Node(1.0, 1.0, 1.0);
-            nodes[7] = new Node(-1.0, 1.0, 1.0);
-            nodes[8] = new Node(-1.0, -1.0, 1.0);
+            nodes[1] = new Node(-a, -b, -c);
+            nodes[2] = new Node(a, -b, -c);
+            nodes[3] = new Node(a, b, -c);
+            nodes[4] = new Node(-a, b, -c);
+            nodes[5] = new Node(-a, -b, c);
+            nodes[6] = new Node(a, -b, c);
+            nodes[7] = new Node(a, b, c);
+            nodes[8] = new Node(-a, b, c);
 
             double E = 32.0;
             string type = "Hex8";
