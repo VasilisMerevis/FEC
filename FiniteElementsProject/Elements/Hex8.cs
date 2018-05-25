@@ -158,7 +158,7 @@ namespace FEC
             k = 1;
             for (int i = 0; i < 8; i++)
             {
-                jacobianMatrix[2, 1] = jacobianMatrix[2, 01] + xUpdated[k] * dN["mhi"][i];
+                jacobianMatrix[2, 1] = jacobianMatrix[2, 1] + xUpdated[k] * dN["mhi"][i];
                 k = k + 3;
             }
             k = 2;
@@ -237,7 +237,7 @@ namespace FEC
                 Bmatrix[4, i * 3 + 1] = dNglobal[i][2];
                 Bmatrix[4, i * 3 + 2] = dNglobal[i][1];
                 Bmatrix[5, i * 3] = dNglobal[i][2];
-                Bmatrix[3, i * 3 + 2] = dNglobal[i][0];
+                Bmatrix[5, i * 3 + 2] = dNglobal[i][0];
             }
             return Bmatrix;
         }
