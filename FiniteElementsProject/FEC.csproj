@@ -48,6 +48,7 @@
     <Compile Include="Elements\ElementProperties.cs" />
     <Compile Include="Elements\Hex8.cs" />
     <Compile Include="Elements\IElementProperties.cs" />
+    <Compile Include="Elements\Quad4.cs" />
     <Compile Include="Examples\CantileverInContact.cs" />
     <Compile Include="Examples\LinearFrameExample.cs" />
     <Compile Include="Examples\LinearFrameTrussHybridExample.cs" />

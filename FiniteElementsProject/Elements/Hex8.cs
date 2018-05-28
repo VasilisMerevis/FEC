@@ -44,14 +44,14 @@ namespace FEC
         private Dictionary<int, double> CalculateShapeFunctions(double ksi, double ihta, double mhi)
         {
             Dictionary<int, double> shapeFunctions = new Dictionary<int, double>();
-            double N1 = 1 / 8 * (1 - ksi) * (1 - ihta) * (1 - mhi); shapeFunctions.Add(1, N1);
-            double N2 = 1 / 8 * (1 + ksi) * (1 - ihta) * (1 - mhi); shapeFunctions.Add(2, N2);
-            double N3 = 1 / 8 * (1 + ksi) * (1 + ihta) * (1 - mhi); shapeFunctions.Add(3, N3);
-            double N4 = 1 / 8 * (1 - ksi) * (1 + ihta) * (1 - mhi); shapeFunctions.Add(4, N4);
-            double N5 = 1 / 8 * (1 - ksi) * (1 - ihta) * (1 + mhi); shapeFunctions.Add(5, N5);
-            double N6 = 1 / 8 * (1 + ksi) * (1 - ihta) * (1 + mhi); shapeFunctions.Add(6, N6);
-            double N7 = 1 / 8 * (1 + ksi) * (1 + ihta) * (1 + mhi); shapeFunctions.Add(7, N7);
-            double N8 = 1 / 8 * (1 - ksi) * (1 + ihta) * (1 + mhi); shapeFunctions.Add(8, N8);
+            double N1 = 1.0 / 8.0 * (1 - ksi) * (1 - ihta) * (1 - mhi); shapeFunctions.Add(1, N1);
+            double N2 = 1.0 / 8.0 * (1 + ksi) * (1 - ihta) * (1 - mhi); shapeFunctions.Add(2, N2);
+            double N3 = 1.0 / 8.0 * (1 + ksi) * (1 + ihta) * (1 - mhi); shapeFunctions.Add(3, N3);
+            double N4 = 1.0 / 8.0 * (1 - ksi) * (1 + ihta) * (1 - mhi); shapeFunctions.Add(4, N4);
+            double N5 = 1.0 / 8.0 * (1 - ksi) * (1 - ihta) * (1 + mhi); shapeFunctions.Add(5, N5);
+            double N6 = 1.0 / 8.0 * (1 + ksi) * (1 - ihta) * (1 + mhi); shapeFunctions.Add(6, N6);
+            double N7 = 1.0 / 8.0 * (1 + ksi) * (1 + ihta) * (1 + mhi); shapeFunctions.Add(7, N7);
+            double N8 = 1.0 / 8.0 * (1 - ksi) * (1 + ihta) * (1 + mhi); shapeFunctions.Add(8, N8);
 
             return shapeFunctions;
         }
@@ -276,7 +276,7 @@ namespace FEC
         public double[,] CreateGlobalStiffnessMatrix()
         {
             double[,] K = new double[24, 24];
-            double[,] E = CalculateStressStrainMatrix(Properties.YoungMod, 1.0/3.0);
+            double[,] E = CalculateStressStrainMatrix(Properties.YoungMod, 1.0/3.0); //needs fixing in poisson v
 
             for (int i = 0; i < 2; i++)
             {
