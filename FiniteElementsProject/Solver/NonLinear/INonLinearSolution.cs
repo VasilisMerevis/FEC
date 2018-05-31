@@ -8,5 +8,6 @@ namespace FEC
     interface INonLinearSolution
     {
         double[] Solve(IAssembly assembly, ILinearSolution linearScheme, double[] forceVector);
+        int numberOfLoadSteps { get; set; }
     }
 }

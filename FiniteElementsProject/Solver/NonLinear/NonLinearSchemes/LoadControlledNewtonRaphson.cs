@@ -42,7 +42,7 @@ namespace FEC
                     iteration = iteration + 1;
                 }
                 solutionVector = VectorOperations.VectorVectorAddition(solutionVector, deltaU);
-                if(iteration >= maxIterations)  Console.WriteLine("Solution not converged at current iterations") ;
+                if(iteration >= maxIterations)  Console.WriteLine("Newton-Raphson: Solution not converged at current iterations") ;
             }
             
             return solutionVector;

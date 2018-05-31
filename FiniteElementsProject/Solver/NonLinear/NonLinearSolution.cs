@@ -7,7 +7,7 @@ namespace FEC
 {
     public class NonLinearSolution : INonLinearSolution
     {
-        protected int numberOfLoadSteps = 10;
+        public int numberOfLoadSteps { get; set; } = 10;
         protected int[] boundaryDof;
         protected IAssembly discretization;
         protected double lambda;

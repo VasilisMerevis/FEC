@@ -22,7 +22,7 @@ namespace FEC
             ElementFreedomSignature[2] = new bool[] { true, true, false, false, false, false };
             ElementFreedomSignature[3] = new bool[] { true, true, false, false, false, false };
             DisplacementVector = new double[6];
-            PenaltyFactor = properties.YoungMod * 100.0;
+            PenaltyFactor = properties.YoungMod * 2.0;
         }
 
         //private double[] CalculateNormalUnitVector(double detm)
@@ -46,7 +46,7 @@ namespace FEC
             double Xs = Nodes[3].XCoordinate + DisplacementVector[4];
             double Ys = Nodes[3].YCoordinate + DisplacementVector[5];
 
-            double ksi1 = (2 * (Xs * (Xm2 - Xm1) + Ys * (Ym2 - Ym1)) - Math.Pow(Xm2, 2) - Math.Pow(Ym2, 2) + Math.Pow(Xm1, 2) + Math.Pow(Ym1,2)) / (Math.Pow(Xm2 - Xm1, 2) + Math.Pow(Ym2 - Ym1, 2));
+            double ksi1 = (2.0 * (Xs * (Xm2 - Xm1) + Ys * (Ym2 - Ym1)) - Math.Pow(Xm2, 2) - Math.Pow(Ym2, 2) + Math.Pow(Xm1, 2) + Math.Pow(Ym1,2)) / (Math.Pow(Xm2 - Xm1, 2) + Math.Pow(Ym2 - Ym1, 2));
             return ksi1;
         }
 
@@ -58,14 +58,14 @@ namespace FEC
             double dN2 = 1.0 / 2.0;
             double[,] aMatrix = new double[,]
                 {
-                    { -N1 ,0 ,-N2 ,0 ,1 ,0 },
-                    {0, -N1 , 0 ,-N2, 0, 1 }
+                    { -N1 ,0.0 ,-N2 ,0.0 ,1.0 ,0.0 },
+                    {0.0, -N1 , 0.0 ,-N2, 0.0, 1.0 }
                 };
 
             double[,] daMatrix = new double[,]
                 {
-                    { -dN1 ,0 ,-dN2 ,0 ,0 ,0 },
-                    {0, -dN1 , 0 ,-dN2, 0, 0 }
+                    { -dN1 ,0.0 ,-dN2 ,0.0 ,0.0 ,0.0 },
+                    {0.0, -dN1 , 0.0 ,-dN2, 0.0, 0.0 }
                 };
             return new Tuple<double[,], double[,]>(aMatrix, daMatrix);
         }
@@ -84,7 +84,7 @@ namespace FEC
             double detm = VectorOperations.VectorDotProduct(surfaceVector, surfaceVector);
             double m11 = 1.0 / detm;
             double[] vector = new double[] { Ym2 - Ym1, Xm1 - Xm2 };
-            double scalarCoef = -1 / (2 * Math.Sqrt(detm));
+            double scalarCoef = -1.0 / (2.0 * Math.Sqrt(detm));
             double[] normalUnitVec = VectorOperations.VectorScalarProductNew(vector, scalarCoef);
 
             return new Tuple<double[], double, double[]>(surfaceVector, m11, normalUnitVec);
@@ -109,8 +109,8 @@ namespace FEC
         private double[,] CalculateMainStiffnessPart(double ksi1, double[] n)
         {
             double[,] mainStiffnessMatrix = new double[6, 6];
-            double N1 = 1 / 2 * (1 - ksi1);
-            double N2 = 1 / 2 * (1 + ksi1);
+            double N1 = 1.0 / 2.0 * (1.0 - ksi1);
+            double N2 = 1.0 / 2.0 * (1.0 + ksi1);
             Tuple<double[,], double[,]> positionMatrices = CalculatePositionMatrix(ksi1);
             double[,] A = positionMatrices.Item1;
             double[,] nxn = VectorOperations.VectorVectorTensorProduct(n, n);

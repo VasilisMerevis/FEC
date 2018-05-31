@@ -16,8 +16,8 @@ namespace FEC
             //Console.WriteLine();
             //LinearFrameTrussHybridExample.RunExample();
             //Console.WriteLine();
-            NonLinearCantileverExample.RunExample();
-            Console.WriteLine();
+            //NonLinearCantileverExample.RunExample();
+            //Console.WriteLine();
             //LinearTrussInContactExample.RunExample();
             //Console.WriteLine();
             //CantileverInContact.RunExample();
@@ -25,8 +25,8 @@ namespace FEC
             TwoBeamsInContactExample.RunExample();
             Console.WriteLine();
 
-            NonSymmetricSystem.Solve();
-            Console.WriteLine();
+            //NonSymmetricSystem.Solve();
+            //Console.WriteLine();
 
 
             //double a = 1.0;
@@ -51,21 +51,21 @@ namespace FEC
             //Hex8 test = new Hex8(elementProperties, nodes);
             //test.CreateGlobalStiffnessMatrix();
 
-            double a = 1.0;
-            Dictionary<int, INode> nodes = new Dictionary<int, INode>();
-            nodes[1] = new Node(0.0, 0.0);
-            nodes[2] = new Node(2*a, 0.0);
-            nodes[3] = new Node(2*a, a);
-            nodes[4] = new Node(0, a);
+            //double a = 1.0;
+            //Dictionary<int, INode> nodes = new Dictionary<int, INode>();
+            //nodes[1] = new Node(0.0, 0.0);
+            //nodes[2] = new Node(2*a, 0.0);
+            //nodes[3] = new Node(2*a, a);
+            //nodes[4] = new Node(0, a);
 
-            double E = 96.0;
-            string type = "Quad4";
-            double A = 1.0;
+            //double E = 96.0;
+            //string type = "Quad4";
+            //double A = 1.0;
 
-            IElementProperties elementProperties = new ElementProperties(E, A, type);
+            //IElementProperties elementProperties = new ElementProperties(E, A, type);
 
-            Quad4 test = new Quad4(elementProperties, nodes);
-            test.CreateGlobalStiffnessMatrix();
+            //Quad4 test = new Quad4(elementProperties, nodes);
+            //test.CreateGlobalStiffnessMatrix();
         }
     }
 }
