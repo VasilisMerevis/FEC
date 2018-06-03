@@ -15,7 +15,7 @@ namespace FEC
             nodes[3] = new Node(0.6, 0.01);
             nodes[4] = new Node(0.45, 0.0);
             nodes[5] = new Node(0.75, 0.0);
-            nodes[6] = new Node(0.105, 0.0);
+            nodes[6] = new Node(1.05, 0.0);
             return nodes;
         }
 
