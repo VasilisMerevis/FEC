@@ -57,6 +57,7 @@
     <Compile Include="Examples\NonLinearCantileverExample.cs" />
     <Compile Include="Examples\NonSymmetricSystem.cs" />
     <Compile Include="Examples\TwoBeamsInContactExample.cs" />
+    <Compile Include="Examples\TwoQuadsExample.cs" />
     <Compile Include="LinearAlgebra\Matrix.cs" />
     <Compile Include="Node\INode.cs" />
     <Compile Include="Node\Node.cs" />

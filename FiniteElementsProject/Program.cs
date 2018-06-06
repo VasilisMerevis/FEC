@@ -22,8 +22,11 @@ namespace FEC
             //Console.WriteLine();
             //CantileverInContact.RunExample();
             //Console.WriteLine();
-            TwoBeamsInContactExample.RunExample();
+            //TwoBeamsInContactExample.RunExample();
+            //Console.WriteLine();
+            TwoQuadsExample.RunExample();
             Console.WriteLine();
+            Console.ReadLine();
 
             //NonSymmetricSystem.Solve();
             //Console.WriteLine();
