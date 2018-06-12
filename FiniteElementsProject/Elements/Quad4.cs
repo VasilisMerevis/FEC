@@ -23,6 +23,7 @@ namespace FEC
             ElementFreedomSignature[2] = new bool[] { true, true, false, false, false, false };
             ElementFreedomSignature[3] = new bool[] { true, true, false, false, false, false };
             ElementFreedomSignature[4] = new bool[] { true, true, false, false, false, false };
+            DisplacementVector = new double[8];
         }
 
         private double[] UpdateNodalCoordinates(double[] displacementVector)
@@ -77,7 +78,7 @@ namespace FEC
         private double[,] CalculateJacobian(Dictionary<string, double[]> dN)
         {
             double[,] jacobianMatrix = new double[2, 2];
-            DisplacementVector = new double[8];
+            
             double[] xUpdated = UpdateNodalCoordinates(DisplacementVector);
 
             int k = 0;
