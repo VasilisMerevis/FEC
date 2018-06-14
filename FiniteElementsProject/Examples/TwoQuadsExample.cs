@@ -77,7 +77,7 @@ namespace FEC
             //newSolu.ActivateNonLinearSolver = true;
             //newSolu.NonLinearScheme.numberOfLoadSteps = 15;
 
-            double[] externalForces = new double[] { 0, 0, 0, -1e9, 0, -1e9, 0, 0 };
+            double[] externalForces = new double[] { 0, 0, 1e9, -1e9, 0, -1e9, 0, 0 };
             newSolu.AssemblyData = elementsAssembly;
             newSolu.Solve(externalForces);
             newSolu.PrintSolution();
