@@ -13,13 +13,13 @@ namespace FEC
             nodes[1] = new Node(0.0, 0.01);
             nodes[2] = new Node(0.3, 0.01);
             nodes[3] = new Node(0.6, 0.01);
-            nodes[4] = new Node(0.6, 0.31);
-            nodes[5] = new Node(0.3, 0.31);
-            nodes[6] = new Node(0.0, 0.31);
+            nodes[4] = new Node(0.6, 0.12);
+            nodes[5] = new Node(0.3, 0.12);
+            nodes[6] = new Node(0.0, 0.12);
 
-            nodes[7] = new Node(0.45, -0.3);
-            nodes[8] = new Node(0.75, -0.3);
-            nodes[9] = new Node(1.05, -0.3);
+            nodes[7] = new Node(0.45, -0.11);
+            nodes[8] = new Node(0.75, -0.11);
+            nodes[9] = new Node(1.05, -0.11);
             nodes[10] = new Node(0.45, 0.0);
             nodes[11] = new Node(0.75, 0.0);
             nodes[12] = new Node(1.05, 0.0);

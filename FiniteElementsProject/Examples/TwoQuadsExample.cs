@@ -73,9 +73,9 @@ namespace FEC
 
             ISolver newSolu = new StaticSolver();
             newSolu.LinearScheme = new PCGSolver();
-            //newSolu.NonLinearScheme = new LoadControlledNewtonRaphson();
-            //newSolu.ActivateNonLinearSolver = true;
-            //newSolu.NonLinearScheme.numberOfLoadSteps = 15;
+            newSolu.NonLinearScheme = new LoadControlledNewtonRaphson();
+            newSolu.ActivateNonLinearSolver = true;
+            newSolu.NonLinearScheme.numberOfLoadSteps = 10;
 
             double[] externalForces = new double[] { 0, 0, 1e9, -1e9, 0, -1e9, 0, 0 };
             newSolu.AssemblyData = elementsAssembly;
