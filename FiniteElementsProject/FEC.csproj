@@ -44,6 +44,7 @@
     <Compile Include="Elements\BeamNL2D.cs" />
     <Compile Include="Elements\ContactNtN2D.cs" />
     <Compile Include="Elements\ContactNtN2Df.cs" />
+    <Compile Include="Elements\ContactNtS2Df.cs" />
     <Compile Include="Elements\ContactNtS2D.cs" />
     <Compile Include="Elements\ElementProperties.cs" />
     <Compile Include="Elements\Hex8.cs" />
@@ -57,6 +58,7 @@
     <Compile Include="Examples\NonLinearCantileverExample.cs" />
     <Compile Include="Examples\NonSymmetricSystem.cs" />
     <Compile Include="Examples\CantileverQuadsExample.cs" />
+    <Compile Include="Examples\TwoBeamsInFrContactQuadsExample.cs" />
     <Compile Include="Examples\TwoBeamsInContactQuadsExample.cs" />
     <Compile Include="Examples\TwoBeamsInContactExample.cs" />
     <Compile Include="Examples\TwoQuadsExample.cs" />
