@@ -15,6 +15,8 @@ namespace FEC
         private double PenaltyFactor { get; set; }
         private double TangentPenaltyFactor { get; set; }
         private double FrictionCoef { get; set; }
+        private double mhid;
+        private double KsiTangentialOld { get; set; }
 
         public ContactNtS2Df(IElementProperties properties, Dictionary<int, INode> nodes)
         {
@@ -72,7 +74,7 @@ namespace FEC
             return new Tuple<double[,], double[,]>(aMatrix, daMatrix);
         }
 
-        private Tuple<double[], double, double[]> SurfaceGeometry(double[,] daMatrix)
+        private Tuple<double[], double, double[], double[]> SurfaceGeometry(double[,] daMatrix)
         {
             double Xm1 = Nodes[1].XCoordinate + DisplacementVector[0];
             double Ym1 = Nodes[1].YCoordinate + DisplacementVector[1];
@@ -88,8 +90,8 @@ namespace FEC
             double[] vector = new double[] { Ym2 - Ym1, Xm1 - Xm2 };
             double scalarCoef = -1.0 / (2.0 * Math.Sqrt(detm));
             double[] normalUnitVec = VectorOperations.VectorScalarProductNew(vector, scalarCoef);
-
-            return new Tuple<double[], double, double[]>(surfaceVector, m11, normalUnitVec);
+            double[] tVector = VectorOperations.VectorScalarProductNew(surfaceVector, 1.0 / Math.Sqrt(detm));
+            return new Tuple<double[], double, double[], double[]>(surfaceVector, m11, normalUnitVec, tVector);
         }
 
         private double CalculateNormalGap(double[,] aMatrix, double[] n)
@@ -106,6 +108,19 @@ namespace FEC
             };
             double normalGap = VectorOperations.VectorDotProduct(xupd, AT_n);
             return normalGap;
+        }
+
+        private double CalculateTangentialVelocity(double ksi1New, double ksi1Old)
+        {
+            double deltaKsi = ksi1New - ksi1Old;
+            KsiTangentialOld = ksi1New;
+            return deltaKsi;
+        }
+
+        private double CalculateTangentialTraction(double deltaKsi, double m11)
+        {
+            double tr1 = -PenaltyFactor * m11 * deltaKsi;
+            return tr1;
         }
 
         private double[,] CalculateMainStiffnessPart(double ksi1, double[] n)
@@ -210,20 +225,20 @@ namespace FEC
                 double[,] aMatrix = positionMatrices.Item1;
                 double[,] daMatrix = positionMatrices.Item2;
 
-                Tuple<double[], double, double[]> surfaceCharacteristics = SurfaceGeometry(daMatrix);
+                Tuple<double[], double, double[], double[]> surfaceCharacteristics = SurfaceGeometry(daMatrix);
                 double m11 = surfaceCharacteristics.Item2;
                 double[] dRho = surfaceCharacteristics.Item1;
                 double[] n = surfaceCharacteristics.Item3;
+                double[] tVector = surfaceCharacteristics.Item4;
                 double ksi3 = CalculateNormalGap(aMatrix, n);
                 if (ksi3 <= 0)
                 {
-                    double[,] mainPart = CalculateMainStiffnessPart(ksi1, n);
+                    double[,] sN = CalculateMainStiffnessPart(ksi1, n);
                     double Tr1 = 0; //need to remove this for completion
                     double phi = Math.Sqrt(Tr1 * Tr1 * m11) - FrictionCoef * PenaltyFactor * Math.Abs(ksi3);
                     if (phi<=0.0)
                     {
                         double T1 = Tr1;
-                        double[] tVector = new double[2]; //need to remove it upon completion
                         double[,] sT1 = MatrixOperations.ScalarMatrixProductNew(TangentPenaltyFactor,
                             MatrixOperations.MatrixProduct(
                                 MatrixOperations.Transpose(aMatrix),
@@ -238,10 +253,33 @@ namespace FEC
                             MatrixOperations.ScalarMatrixProductNew(-1.0, sT1),
                             MatrixOperations.MatrixAddition(sT2,
                             MatrixOperations.Transpose(sT2)));
+                        double[,] globalStiffnessMatrix = MatrixOperations.MatrixAddition(sN, sT);
+                        return globalStiffnessMatrix;
+                    }
+                    else
+                    {
+                        double T1 = (Tr1 / Math.Abs(Tr1)) * mhid * PenaltyFactor * Math.Abs(ksi3) * Math.Sqrt(m11);
+                        double[,] sT1 = MatrixOperations.ScalarMatrixProductNew(mhid*PenaltyFactor*(Tr1/Math.Abs(Tr1)),
+                            MatrixOperations.MatrixProduct(
+                                MatrixOperations.Transpose(aMatrix),
+                                MatrixOperations.MatrixProduct(
+                                VectorOperations.VectorVectorTensorProduct(tVector, n), aMatrix)));
+                        double[,] sT2 = MatrixOperations.ScalarMatrixProductNew(mhid * PenaltyFactor * Math.Abs(ksi3) * (Tr1 / Math.Abs(Tr1)) * Math.Sqrt(m11),
+                            MatrixOperations.MatrixProduct(
+                                MatrixOperations.Transpose(daMatrix),
+                                MatrixOperations.MatrixProduct(
+                                VectorOperations.VectorVectorTensorProduct(tVector, tVector), aMatrix)));
+                        double[,] sT = MatrixOperations.MatrixAddition(
+                            MatrixOperations.ScalarMatrixProductNew(-1.0, sT1),
+                            MatrixOperations.MatrixAddition(sT2,
+                            MatrixOperations.Transpose(sT2)));
+                        double[,] globalStiffnessMatrix = MatrixOperations.MatrixAddition(sN, sT);
+                        return globalStiffnessMatrix;
                     }
                     //double[,] rotationalPart = CalculateRotationalStiffnessPart(aMatrix, daMatrix, n, ksi3, m11, dRho);
                     //double[,] globalStiffnessMatrix = MatrixOperations.MatrixAddition(mainPart, rotationalPart);
-                    return globalStiffnessMatrix;
+                    
+                    
                 }
                 else
                 {
@@ -265,7 +303,7 @@ namespace FEC
                 double[,] aMatrix = positionMatrices.Item1;
                 double[,] daMatrix = positionMatrices.Item2;
 
-                Tuple<double[], double, double[]> surfaceCharacteristics = SurfaceGeometry(daMatrix);
+                Tuple<double[], double, double[], double[]> surfaceCharacteristics = SurfaceGeometry(daMatrix);
                 double m11 = surfaceCharacteristics.Item2;
                 double[] n = surfaceCharacteristics.Item3;
                 double ksi3 = CalculateNormalGap(aMatrix, n);
