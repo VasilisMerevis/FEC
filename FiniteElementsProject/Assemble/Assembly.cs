@@ -103,6 +103,9 @@ namespace FEC
                     case "Quad4":
                         ElementsAssembly[elem] = new Quad4(ElementsProperties[elem], elementNodes);
                         break;
+                    case "ContactNtS2Df":
+                        ElementsAssembly[elem] = new ContactNtS2Df(ElementsProperties[elem], elementNodes);
+                        break;
                 }
                 Dictionary<int, bool[]> efs = ElementsAssembly[elem].ElementFreedomSignature;
                 Dictionary<int, int> elemConnectivity = ElementsConnectivity[elem];

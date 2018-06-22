@@ -60,7 +60,7 @@ namespace FEC
             double E = 200.0e9;
             double A = 0.01;
             string type = "Quad4";
-            string type2 = "ContactNtS2DFr";
+            string type2 = "ContactNtS2Df";
             Dictionary<int, IElementProperties> elementProperties = new Dictionary<int, IElementProperties>();
             elementProperties[1] = new ElementProperties(E, A, type);
             elementProperties[2] = new ElementProperties(E, A, type);

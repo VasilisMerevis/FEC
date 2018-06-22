@@ -234,7 +234,8 @@ namespace FEC
                 if (ksi3 <= 0)
                 {
                     double[,] sN = CalculateMainStiffnessPart(ksi1, n);
-                    double Tr1 = 0; //need to remove this for completion
+                    double deltaKsi = CalculateTangentialVelocity(ksi1, KsiTangentialOld);
+                    double Tr1 = CalculateTangentialTraction(deltaKsi, m11);
                     double phi = Math.Sqrt(Tr1 * Tr1 * m11) - FrictionCoef * PenaltyFactor * Math.Abs(ksi3);
                     if (phi<=0.0)
                     {
@@ -306,12 +307,18 @@ namespace FEC
                 Tuple<double[], double, double[], double[]> surfaceCharacteristics = SurfaceGeometry(daMatrix);
                 double m11 = surfaceCharacteristics.Item2;
                 double[] n = surfaceCharacteristics.Item3;
+                double[] tVector = surfaceCharacteristics.Item4;
                 double ksi3 = CalculateNormalGap(aMatrix, n);
                 if (ksi3 <= 0)
                 {
                     double[,] AT = MatrixOperations.Transpose(aMatrix);
                     double[] AT_n = VectorOperations.MatrixVectorProduct(AT, n);
-                    double[] internalGlobalForcesVector = VectorOperations.VectorScalarProductNew(AT_n, PenaltyFactor * ksi3);
+                    double[] AT_t = VectorOperations.MatrixVectorProduct(AT, tVector);
+                    double deltaKsi = CalculateTangentialVelocity(ksi1, KsiTangentialOld);
+                    double tr1 = CalculateTangentialTraction(deltaKsi, m11);
+                    double[] internalGlobalForcesVector = VectorOperations.VectorVectorAddition(
+                        VectorOperations.VectorScalarProductNew(AT_n, PenaltyFactor * ksi3),
+                        VectorOperations.VectorScalarProductNew(AT_t, tr1*Math.Sqrt(m11)));
                     return internalGlobalForcesVector;
                 }
                 else
