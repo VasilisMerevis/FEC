@@ -16,7 +16,8 @@ namespace FEC
         private double TangentPenaltyFactor { get; set; }
         private double FrictionCoef { get; set; }
         private double mhid;
-        private double KsiTangentialOld { get; set; }
+        private double Ksi1Initial { get; set; }
+        private int counter;
 
         public ContactNtS2Df(IElementProperties properties, Dictionary<int, INode> nodes)
         {
@@ -27,6 +28,7 @@ namespace FEC
             ElementFreedomSignature[3] = new bool[] { true, true, false, false, false, false };
             DisplacementVector = new double[6];
             PenaltyFactor = properties.YoungMod * 2.0;
+            counter = 1;
         }
 
         //private double[] CalculateNormalUnitVector(double detm)
@@ -110,10 +112,9 @@ namespace FEC
             return normalGap;
         }
 
-        private double CalculateTangentialVelocity(double ksi1New, double ksi1Old)
+        private double CalculateTangentialVelocity(double ksi1New, double ksi1Initial)
         {
-            double deltaKsi = ksi1New - ksi1Old;
-            KsiTangentialOld = ksi1New;
+            double deltaKsi = ksi1New - ksi1Initial;
             return deltaKsi;
         }
 
@@ -217,8 +218,10 @@ namespace FEC
         }
 
         public double[,] CreateGlobalStiffnessMatrix()
-        {
+        {            
             double ksi1 = ClosestPointProjection();
+            if (counter == 1) { Ksi1Initial = ksi1; }
+            counter = counter + 1;
             if (Math.Abs(ksi1) <= 1.05)
             {
                 Tuple<double[,], double[,]> positionMatrices = CalculatePositionMatrix(ksi1);
@@ -234,7 +237,7 @@ namespace FEC
                 if (ksi3 <= 0)
                 {
                     double[,] sN = CalculateMainStiffnessPart(ksi1, n);
-                    double deltaKsi = CalculateTangentialVelocity(ksi1, KsiTangentialOld);
+                    double deltaKsi = CalculateTangentialVelocity(ksi1, Ksi1Initial);
                     double Tr1 = CalculateTangentialTraction(deltaKsi, m11);
                     double phi = Math.Sqrt(Tr1 * Tr1 * m11) - FrictionCoef * PenaltyFactor * Math.Abs(ksi3);
                     if (phi<=0.0)
@@ -314,7 +317,7 @@ namespace FEC
                     double[,] AT = MatrixOperations.Transpose(aMatrix);
                     double[] AT_n = VectorOperations.MatrixVectorProduct(AT, n);
                     double[] AT_t = VectorOperations.MatrixVectorProduct(AT, tVector);
-                    double deltaKsi = CalculateTangentialVelocity(ksi1, KsiTangentialOld);
+                    double deltaKsi = CalculateTangentialVelocity(ksi1, Ksi1Initial);
                     double tr1 = CalculateTangentialTraction(deltaKsi, m11);
                     double[] internalGlobalForcesVector = VectorOperations.VectorVectorAddition(
                         VectorOperations.VectorScalarProductNew(AT_n, PenaltyFactor * ksi3),
