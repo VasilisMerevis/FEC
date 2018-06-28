@@ -29,6 +29,8 @@ namespace FEC
             DisplacementVector = new double[6];
             PenaltyFactor = properties.YoungMod * 2.0;
             counter = 1;
+            mhid = 0.0;
+            FrictionCoef = 0.5;
         }
 
         //private double[] CalculateNormalUnitVector(double detm)
@@ -301,6 +303,8 @@ namespace FEC
         public double[] CreateInternalGlobalForcesVector()
         {
             double ksi1 = ClosestPointProjection();
+            if (counter == 1) { Ksi1Initial = ksi1; }
+            counter = counter + 1;
             if (Math.Abs(ksi1) <= 1.05)
             {
                 Tuple<double[,], double[,]> positionMatrices = CalculatePositionMatrix(ksi1);
@@ -317,12 +321,26 @@ namespace FEC
                     double[,] AT = MatrixOperations.Transpose(aMatrix);
                     double[] AT_n = VectorOperations.MatrixVectorProduct(AT, n);
                     double[] AT_t = VectorOperations.MatrixVectorProduct(AT, tVector);
+                    
                     double deltaKsi = CalculateTangentialVelocity(ksi1, Ksi1Initial);
-                    double tr1 = CalculateTangentialTraction(deltaKsi, m11);
-                    double[] internalGlobalForcesVector = VectorOperations.VectorVectorAddition(
-                        VectorOperations.VectorScalarProductNew(AT_n, PenaltyFactor * ksi3),
-                        VectorOperations.VectorScalarProductNew(AT_t, tr1*Math.Sqrt(m11)));
-                    return internalGlobalForcesVector;
+                    double Tr1 = CalculateTangentialTraction(deltaKsi, m11);
+                    double phi = Math.Sqrt(Tr1 * Tr1 * m11) - FrictionCoef * PenaltyFactor * Math.Abs(ksi3);
+                    if (phi <= 0.0)
+                    {
+                        double T1 = Tr1;
+                        double[] internalGlobalForcesVector = VectorOperations.VectorVectorAddition(
+                                                VectorOperations.VectorScalarProductNew(AT_n, PenaltyFactor * ksi3),
+                                                VectorOperations.VectorScalarProductNew(AT_t, T1 * Math.Sqrt(m11)));
+                        return internalGlobalForcesVector;                        
+                    }
+                    else
+                    {
+                        double T1 = (Tr1 / Math.Abs(Tr1)) * mhid * PenaltyFactor * Math.Abs(ksi3) * Math.Sqrt(m11);
+                        double[] internalGlobalForcesVector = VectorOperations.VectorVectorAddition(
+                                                VectorOperations.VectorScalarProductNew(AT_n, PenaltyFactor * ksi3),
+                                                VectorOperations.VectorScalarProductNew(AT_t, T1 * Math.Sqrt(m11)));
+                        return internalGlobalForcesVector;
+                    }
                 }
                 else
                 {
