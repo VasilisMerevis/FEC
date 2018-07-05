@@ -92,9 +92,9 @@ namespace FEC
             newSolu.LinearScheme = new BiCGSTABSolver();
             newSolu.NonLinearScheme = new LoadControlledNewtonRaphson();
             newSolu.ActivateNonLinearSolver = true;
-            newSolu.NonLinearScheme.numberOfLoadSteps = 15;
+            newSolu.NonLinearScheme.numberOfLoadSteps = 20;
 
-            double[] externalForces = new double[] { 0, 0, 0, 0, 0, -4*22000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            double[] externalForces = new double[] { 0, 0, 0, 0, 0, -2*22000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
             newSolu.AssemblyData = elementsAssembly;
             newSolu.Solve(externalForces);
             newSolu.PrintSolution();
