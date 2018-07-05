@@ -28,8 +28,8 @@ namespace FEC
             ElementFreedomSignature[2] = new bool[] { true, true, false, false, false, false };
             ElementFreedomSignature[3] = new bool[] { true, true, false, false, false, false };
             DisplacementVector = new double[6];
-            PenaltyFactor = properties.YoungMod * 1.0;
-            TangentPenaltyFactor = properties.YoungMod * 1.0;
+            PenaltyFactor = properties.YoungMod * 10.0;
+            TangentPenaltyFactor = properties.YoungMod * 10.0;
             counter = 1;
             mhid = 0.2;
             FrictionCoef = 0.2;
