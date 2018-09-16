@@ -39,6 +39,7 @@
   <ItemGroup>
     <Compile Include="Assemble\Assembly.cs" />
     <Compile Include="Assemble\IAssembly.cs" />
+    <Compile Include="Solver\Dynamic.cs" />
     <Compile Include="Elements\Bar2D.cs" />
     <Compile Include="Elements\Beam2D.cs" />
     <Compile Include="Elements\BeamNL2D.cs" />
@@ -71,6 +72,8 @@
     <Compile Include="Assemble\BoundaryConditionsImposition.cs" />
     <Compile Include="LinearAlgebra\MatrixOperations.cs" />
     <Compile Include="Elements\IElement.cs" />
+    <Compile Include="Solver\Dynamic\DynamicSchemes\CentralDifferences.cs" />
+    <Compile Include="Solver\Dynamic\InitialConditions.cs" />
     <Compile Include="Solver\ISolver.cs" />
     <Compile Include="Solver\Linear\ILinearSolution.cs" />
     <Compile Include="Solver\Linear\LinearSchemes\BiCGSTABSolver.cs" />
