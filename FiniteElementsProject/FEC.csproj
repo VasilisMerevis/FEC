@@ -39,6 +39,7 @@
   <ItemGroup>
     <Compile Include="Assemble\Assembly.cs" />
     <Compile Include="Assemble\IAssembly.cs" />
+    <Compile Include="Examples\CentralDifferencesTest.cs" />
     <Compile Include="Solver\Dynamic.cs" />
     <Compile Include="Elements\Bar2D.cs" />
     <Compile Include="Elements\Beam2D.cs" />

@@ -27,12 +27,15 @@ namespace FEC
             //TwoQuadsExample.RunExample();
             //Console.WriteLine();
             //TwoBeamsInContactQuadsExample.RunExample();
-            TwoBeamsInFrContactQuadsExample.RunExample();
+            //TwoBeamsInFrContactQuadsExample.RunExample();
             //CantileverQuadsExample.RunExample();
+            CentralDifferencesTest.SolveExample();
             Console.ReadLine();
 
             //NonSymmetricSystem.Solve();
             //Console.WriteLine();
+
+
 
 
             //double a = 1.0;
