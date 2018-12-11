@@ -58,8 +58,8 @@ namespace FEC
             Dictionary<int, IElementProperties> elementProperties = new Dictionary<int, IElementProperties>();
             elementProperties[1] = new ElementProperties(E, A, type);
             elementProperties[2] = new ElementProperties(E, A, type);
-            elementProperties[3] = new ElementProperties(E, A, type2);
-            elementProperties[4] = new ElementProperties(E, A, type2);
+            elementProperties[3] = new ElementProperties(E/1000.0, A, type2);
+            elementProperties[4] = new ElementProperties(E/1000.0, A, type2);
 
             return elementProperties;
         }
