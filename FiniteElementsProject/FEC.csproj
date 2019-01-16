@@ -72,6 +72,7 @@
     <Compile Include="Assemble\BoundaryConditionsImposition.cs" />
     <Compile Include="LinearAlgebra\MatrixOperations.cs" />
     <Compile Include="Elements\IElement.cs" />
+    <Compile Include="Solver\InitialConditions.cs" />
     <Compile Include="Solver\ISolver.cs" />
     <Compile Include="Solver\Linear\ILinearSolution.cs" />
     <Compile Include="Solver\Linear\LinearSchemes\BiCGSTABSolver.cs" />
@@ -80,6 +81,7 @@
     <Compile Include="Solver\Linear\LinearSchemes\LUFactorization.cs" />
     <Compile Include="Solver\Linear\LinearSchemes\PCGSolver.cs" />
     <Compile Include="Solver\Linear\LinearSolution.cs" />
+    <Compile Include="Solver\NLExplicit.cs" />
     <Compile Include="Solver\NonLinear\INonLinearSolution.cs" />
     <Compile Include="Solver\NonLinear\NonLinearSchemes\LoadControlledNewtonRaphson.cs" />
     <Compile Include="Solver\NonLinear\NonLinearSolution.cs" />
