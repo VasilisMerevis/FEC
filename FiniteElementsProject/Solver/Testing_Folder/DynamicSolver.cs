@@ -7,14 +7,9 @@ namespace FEC
 {
     public abstract class DynamicSolver
     {
-        protected DynamicScheme dynamicScheme;
-        protected IAssembly assembly;
-        protected ILinearSolution linearSolver;
-
-        public DynamicSolver()
-        {
-            dynamicScheme = new DynamicScheme();
-        }
+        public DynamicScheme dynamicScheme;
+        public IAssembly assembly;
+        public ILinearSolution linearSolver;
 
         protected void UpdateDisplacements(double[] solutionVector)
         {
