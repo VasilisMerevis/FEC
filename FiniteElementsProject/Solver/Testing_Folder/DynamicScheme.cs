@@ -25,7 +25,7 @@ namespace FEC
             get { return explicitSolution[timeStepsNumber]; }
         }
 
-        public DynamicScheme(InitialConditions initialValues, double totalTime, int timeStepsNumber, double[,] stiffnessMatrix, double[,] massMatrix, double[] externalForcesVector)
+        public DynamicScheme(InitialConditions initialValues, double totalTime, int timeStepsNumber)
         {
             totalDOFs = stiffnessMatrix.GetLength(0);
             this.totalTime = totalTime;

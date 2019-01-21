@@ -10,6 +10,7 @@ namespace FEC
         public DynamicScheme dynamicScheme;
         public IAssembly assembly;
         public ILinearSolution linearSolver;
+        public double[] ExternalVector { get; set; }
 
         protected void UpdateDisplacements(double[] solutionVector)
         {
