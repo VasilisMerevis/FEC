@@ -163,23 +163,52 @@ namespace FEC
             }
         }
 
-        //public double[,] CreateTotalMassMatrix()
-        //{
-        //    Array.Clear(TotalMassMatrix, 0, TotalMassMatrix.Length);
-        //    for (int element = 0; element < localNode1.Length; element++)
-        //    {
-        //        List<int> dof = beamElementsList[element].ElementDOFs(localNode1, localNode2, element);
-        //        for (int i = 0; i < dof.Count; i++)
-        //        {
-        //            for (int j = 0; j < dof.Count; j++)
-        //            {
-        //                totalMassMatrix[dof[i] - 1, dof[j] - 1] = totalMassMatrix[dof[i] - 1, dof[j] - 1] + beamElementsList[element].massMatrix[i, j];
-        //            }
-        //        }
-        //    }
-        //    double[,] reducedMassMatrix = BoundaryConditionsImposition.ReducedTotalStiff(totalMassMatrix, boundedDOFsVector);
-        //    return reducedMassMatrix;
-        //}
+        public double[,] CreateTotalMassMatrix()
+        {
+            //Array.Clear(TotalMassMatrix, 0, TotalMassMatrix.Length);
+            //for (int element = 0; element < localNode1.Length; element++)
+            //{
+            //    List<int> dof = beamElementsList[element].ElementDOFs(localNode1, localNode2, element);
+            //    for (int i = 0; i < dof.Count; i++)
+            //    {
+            //        for (int j = 0; j < dof.Count; j++)
+            //        {
+            //            totalMassMatrix[dof[i] - 1, dof[j] - 1] = totalMassMatrix[dof[i] - 1, dof[j] - 1] + beamElementsList[element].massMatrix[i, j];
+            //        }
+            //    }
+            //}
+            //double[,] reducedMassMatrix = BoundaryConditionsImposition.ReducedTotalStiff(totalMassMatrix, boundedDOFsVector);
+            //return reducedMassMatrix;
+            double[,] totalMassMatrix = new double[totalDOF, totalDOF];
+            for (int element = 1; element <= ElementsConnectivity.Count; element++)
+            {
+                int elementDofs = ElementsAssembly[element].ElementFreedomList.Count;
+                double[,] elementMassMatrix = ElementsAssembly[element].CreateMassMatrix();
+
+                for (int i = 0; i < elementDofs; i++)
+                {
+                    int localRow = i;
+                    int globalRow = ElementsAssembly[element].ElementFreedomList[i];
+                    for (int j = 0; j < elementDofs; j++)
+                    {
+                        int localColumn = j;
+                        int globalColumn = ElementsAssembly[element].ElementFreedomList[j];
+                        totalMassMatrix[globalRow, globalColumn] = totalMassMatrix[globalRow, globalColumn] + elementMassMatrix[localRow, localColumn];
+                    }
+                }
+            }
+
+            if (ActivateBoundaryConditions)
+            {
+                double[,] reducedMassMatrix = BoundaryConditionsImposition.ReducedTotalStiff(totalMassMatrix, BoundedDOFsVector);
+                return reducedMassMatrix;
+            }
+            else
+            {
+                return totalMassMatrix;
+            }
+
+        }
 
         public double[] CreateTotalInternalForcesVector()
         {

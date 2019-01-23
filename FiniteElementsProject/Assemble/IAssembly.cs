@@ -17,6 +17,7 @@ namespace FEC
         int[] BoundedDOFsVector { get; set; }
         void UpdateDisplacements(double[] totalDisplacementVector);
         double[] CreateTotalInternalForcesVector();
+        double[,] CreateTotalMassMatrix();
 
 
 

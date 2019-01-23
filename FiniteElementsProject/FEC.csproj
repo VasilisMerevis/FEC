@@ -90,6 +90,7 @@
     <Compile Include="Solver\Static.cs" />
     <Compile Include="Solver\Testing_Folder\DynamicScheme.cs" />
     <Compile Include="Solver\Testing_Folder\DynamicSolver.cs" />
+    <Compile Include="Solver\Testing_Folder\ExplicitSolver.cs" />
     <Compile Include="Solver\Testing_Folder\NRScheme.cs" />
   </ItemGroup>
   <ItemGroup />
