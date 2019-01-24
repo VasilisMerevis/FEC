@@ -306,6 +306,11 @@ namespace FEC
             return new double[24, 24];
         }
 
+        public double[,] CreateDampingMatrix()
+        {
+            throw new Exception("Not implemented");
+        }
+
         public double[] CreateInternalGlobalForcesVector()
         {
             return new double[24];

@@ -148,6 +148,11 @@ namespace FEC
             return globalMassMatrix;
         }
 
+        public double[,] CreateDampingMatrix()
+        {
+            throw new Exception("Not implemented");
+        }
+
         public double[] CreateInternalGlobalForcesVector()
         {
             double[,] globalStiffnessMatrix = new double[6, 6];

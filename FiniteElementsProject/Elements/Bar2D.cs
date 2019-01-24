@@ -133,6 +133,11 @@ namespace FEC
             return massMatrix;
         }
 
+        public double[,] CreateDampingMatrix()
+        {
+            throw new Exception("Not implemented");
+        }
+
         public double[] CreateInternalGlobalForcesVector()
         {
             double c = CalculateElementCosinus();

@@ -157,6 +157,11 @@ namespace FEC
 
         }
 
+        public double[,] CreateDampingMatrix()
+        {
+            throw new Exception("Not implemented");
+        }
+
         public double[] CreateInternalGlobalForcesVector()
         {
             double penetration = CalculateNormalGap();

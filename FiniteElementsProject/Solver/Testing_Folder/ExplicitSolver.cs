@@ -5,7 +5,7 @@ using System.Text;
 
 namespace FEC
 {
-    class ExplicitSolver
+    public class ExplicitSolver
     {
         public IAssembly Assembler { get; set; }
         public ILinearSolution LinearSolver { get; set; }

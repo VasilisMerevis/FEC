@@ -107,7 +107,12 @@ namespace FEC
 
         public double[,] CreateMassMatrix()
         {
-            throw new Exception("Mass matrix not implemented");
+            return new double[2,2];
+        }
+
+        public double[,] CreateDampingMatrix()
+        {
+            throw new Exception("Not implemented");
         }
     }
 }

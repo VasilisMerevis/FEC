@@ -68,7 +68,7 @@ namespace FEC
             IAssembly elementsAssembly = CreateAssembly();
             elementsAssembly.CreateElementsAssembly();
             elementsAssembly.ActivateBoundaryConditions = true;
-            double[,] globalStiffnessMatrix = elementsAssembly.CreateTotalStiffnessMatrix();
+            
 
             InitialConditions initialValues = new InitialConditions();
             initialValues.InitialAccelerationVector = new double[] { 0.0, 10.0 };
@@ -76,12 +76,13 @@ namespace FEC
             initialValues.InitialVelocityVector = new double[] { 0.0, 0.0 };
             initialValues.InitialTime = 0.0;
 
-            DynamicSolver solver = new DynamicScheme(initialValues, 1.0, 10);
+            ExplicitSolver newSolver = new ExplicitSolver(1.0, 10);
+            newSolver.Assembler = elementsAssembly;
 
-            solver.ExternalVector = new double[] { 50.0, 0 };
-            solver.assembly = elementsAssembly;
-            solver.linearSolver = new LUFactorization();
-            solver.SolveDynamic();
+            newSolver.InitialValues = initialValues;
+            newSolver.ExternalForcesVector = new double[] { 50.0, 0 };
+            newSolver.LinearSolver = new LUFactorization();
+            newSolver.SolveExplicit();
         }
     }
 }

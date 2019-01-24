@@ -245,6 +245,11 @@ namespace FEC
             throw new Exception("Mass matrix not implemented");
         }
 
+        public double[,] CreateDampingMatrix()
+        {
+            throw new Exception("Not implemented");
+        }
+
         public double[,] CreateLocalStiffnessMatrix()
         {
             throw new Exception("Local stiffness matrix not implemented");
