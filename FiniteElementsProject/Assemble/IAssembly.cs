@@ -18,6 +18,7 @@ namespace FEC
         void UpdateDisplacements(double[] totalDisplacementVector);
         double[] CreateTotalInternalForcesVector();
         double[,] CreateTotalMassMatrix();
+        double[,] CreateTotalDampingMatrix();
 
 
 

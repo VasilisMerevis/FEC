@@ -82,7 +82,9 @@ namespace FEC
             newSolver.InitialValues = initialValues;
             newSolver.ExternalForcesVector = new double[] { 50.0, 0 };
             newSolver.LinearSolver = new LUFactorization();
+            newSolver.ActivateNonLinearSolution = true;
             newSolver.SolveExplicit();
+            newSolver.PrintExplicitSolution();
         }
     }
 }

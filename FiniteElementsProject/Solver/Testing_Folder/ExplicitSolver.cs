@@ -18,18 +18,15 @@ namespace FEC
         private double totalTime;
         private int timeStepsNumber;
         private double timeStep;
-        private double[,] dampingMatrix;
         private double a0, a1, a2, a3;
         private Dictionary<int, double[]> explicitSolution = new Dictionary<int, double[]>();
+        public bool ActivateNonLinearSolution { get; set; }
 
         public ExplicitSolver(double totalTime, int timeStepsNumber)
         {
             this.totalTime = totalTime;
             this.timeStepsNumber = timeStepsNumber;
             timeStep = totalTime / timeStepsNumber;
-            
-            //dampingMatrix = new double[totalDOFs, totalDOFs];
-
             a0 = 1.0 / (timeStep * timeStep);
             a1 = 1.0 / (2.0 * timeStep);
             a2 = 2.0 * a0;
@@ -56,8 +53,9 @@ namespace FEC
                 incrementalExternalForcesVector = VectorOperations.VectorVectorAddition(incrementalExternalForcesVector, incrementDf);
                 Assembler.UpdateDisplacements(solutionVector);
                 internalForcesTotalVector = Assembler.CreateTotalInternalForcesVector();
-                double[,] stiffnessMatrix = Assembler.CreateTotalStiffnessMatrix();
-                dU = LinearSolver.Solve(stiffnessMatrix, incrementDf);
+                //double[,] stiffnessMatrix = Assembler.CreateTotalStiffnessMatrix();
+                double[,] tangentMatrix = CalculateHatMMatrix();
+                dU = LinearSolver.Solve(tangentMatrix, incrementDf);
                 solutionVector = VectorOperations.VectorVectorAddition(solutionVector, dU);
                 residual = VectorOperations.VectorVectorSubtraction(internalForcesTotalVector, incrementalExternalForcesVector);
                 residualNorm = VectorOperations.VectorNorm2(residual);
@@ -65,8 +63,9 @@ namespace FEC
                 Array.Clear(deltaU, 0, deltaU.Length);
                 while (residualNorm > tolerance && iteration < maxIterations)
                 {
-                    stiffnessMatrix = Assembler.CreateTotalStiffnessMatrix();
-                    deltaU = VectorOperations.VectorVectorSubtraction(deltaU, LinearSolver.Solve(stiffnessMatrix, residual));
+                    //stiffnessMatrix = Assembler.CreateTotalStiffnessMatrix();
+                    tangentMatrix = CalculateHatMMatrix();
+                    deltaU = VectorOperations.VectorVectorSubtraction(deltaU, LinearSolver.Solve(tangentMatrix, residual));
                     tempSolutionVector = VectorOperations.VectorVectorAddition(solutionVector, deltaU);
                     Assembler.UpdateDisplacements(tempSolutionVector);
                     internalForcesTotalVector = Assembler.CreateTotalInternalForcesVector();
@@ -95,7 +94,7 @@ namespace FEC
         private double[,] CalculateHatMMatrix()
         {
             double[,] a0M = MatrixOperations.ScalarMatrixProductNew(a0, Assembler.CreateTotalMassMatrix());
-            double[,] a1C = MatrixOperations.ScalarMatrixProductNew(a1, dampingMatrix);
+            double[,] a1C = MatrixOperations.ScalarMatrixProductNew(a1, Assembler.CreateTotalDampingMatrix());
             double[,] hutM = MatrixOperations.MatrixAddition(a0M, a1C);
             return hutM;
         }
@@ -125,11 +124,19 @@ namespace FEC
             double[,] hatMassMatrix = CalculateHatMMatrix();
             explicitSolution.Add(-1, CalculatePreviousDisplacementVector());
             explicitSolution.Add(0, InitialValues.InitialDisplacementVector);
+            double[] nextSolution;
             for (int i = 1; i < timeStepsNumber; i++)
             {
                 double time = i * timeStep + InitialValues.InitialTime;
                 double[] hatRVector = CalculateHatRVector(i);
-                double[] nextSolution = LinearSolver.Solve(hatMassMatrix, hatRVector);
+                if (ActivateNonLinearSolution == false)
+                {
+                    nextSolution = LinearSolver.Solve(hatMassMatrix, hatRVector);
+                }
+                else
+                {
+                    nextSolution = LoadControlledNR(hatRVector);
+                }
                 explicitSolution.Add(i, nextSolution);
             }
         }
@@ -140,7 +147,7 @@ namespace FEC
             {
                 int step = element.Key;
                 double[] solutionInStep = element.Value;
-                Console.WriteLine("Step is{0}", step);
+                Console.WriteLine("Solution for Load Step {0} is:", step);
                 VectorOperations.PrintVector(solutionInStep);
             }
         }

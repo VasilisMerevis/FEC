@@ -210,6 +210,39 @@ namespace FEC
 
         }
 
+        public double[,] CreateTotalDampingMatrix()
+        {
+            double[,] totalDampingMatrix = new double[totalDOF, totalDOF];
+            for (int element = 1; element <= ElementsConnectivity.Count; element++)
+            {
+                int elementDofs = ElementsAssembly[element].ElementFreedomList.Count;
+                double[,] elementDampingMatrix = ElementsAssembly[element].CreateDampingMatrix();
+
+                for (int i = 0; i < elementDofs; i++)
+                {
+                    int localRow = i;
+                    int globalRow = ElementsAssembly[element].ElementFreedomList[i];
+                    for (int j = 0; j < elementDofs; j++)
+                    {
+                        int localColumn = j;
+                        int globalColumn = ElementsAssembly[element].ElementFreedomList[j];
+                        totalDampingMatrix[globalRow, globalColumn] = totalDampingMatrix[globalRow, globalColumn] + elementDampingMatrix[localRow, localColumn];
+                    }
+                }
+            }
+
+            if (ActivateBoundaryConditions)
+            {
+                double[,] reducedDampingMatrix = BoundaryConditionsImposition.ReducedTotalStiff(totalDampingMatrix, BoundedDOFsVector);
+                return reducedDampingMatrix;
+            }
+            else
+            {
+                return totalDampingMatrix;
+            }
+
+        }
+
         public double[] CreateTotalInternalForcesVector()
         {
             double[] internalForcesTotalVector = new double[totalDOF];
