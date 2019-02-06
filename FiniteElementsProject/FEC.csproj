@@ -92,6 +92,7 @@
     <Compile Include="Solver\Testing_Folder\DynamicSolver.cs" />
     <Compile Include="Solver\Testing_Folder\ExplicitSolver.cs" />
     <Compile Include="Solver\Testing_Folder\NRScheme.cs" />
+    <Compile Include="Examples\TwoQuadsDynamicExample.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

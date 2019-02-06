@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace FiniteElementsProject.Examples
+namespace FEC
 {
     public static class TwoQuadsDynamicExample
     {
@@ -46,9 +46,23 @@ namespace FiniteElementsProject.Examples
         private static Dictionary<int, Dictionary<int, int>> CreateConnectivity()
         {
             Dictionary<int, Dictionary<int, int>> connectivity = new Dictionary<int, Dictionary<int, int>>();
-            connectivity[1] = new Dictionary<int, int>() { { 1, 1 }, { 2, 2 } };
-            connectivity[2] = new Dictionary<int, int>() { { 1, 2 }, { 2, 3 } };
-            connectivity[3] = new Dictionary<int, int>() { { 1, 3 }, { 2, 4 } };
+            connectivity[1] = new Dictionary<int, int>() { { 1, 1 }, { 2, 2 }, { 3, 6 }, { 4, 5 } };
+            connectivity[2] = new Dictionary<int, int>() { { 1, 2 }, { 2, 3 }, { 3, 7 }, { 4, 6 } };
+            connectivity[3] = new Dictionary<int, int>() { { 1, 3 }, { 2, 4 }, { 3, 8 }, { 4, 7 } };
+            connectivity[4] = new Dictionary<int, int>() { { 1, 5 }, { 2, 6 }, { 3, 10 }, { 4, 9 } };
+            connectivity[5] = new Dictionary<int, int>() { { 1, 6 }, { 2, 7 }, { 3, 11 }, { 4, 10 } };
+
+            connectivity[6] = new Dictionary<int, int>() { { 1, 7 }, { 2, 8 }, { 3, 12 }, { 4, 11 } };
+            connectivity[7] = new Dictionary<int, int>() { { 1, 9 }, { 2, 10 }, { 3, 14 }, { 4, 13 } };
+            connectivity[8] = new Dictionary<int, int>() { { 1, 10 }, { 2, 11 }, { 3, 15 }, { 4, 14 } };
+            connectivity[9] = new Dictionary<int, int>() { { 1, 11 }, { 2, 12 }, { 3, 16 }, { 4, 15 } };
+            connectivity[10] = new Dictionary<int, int>() { { 1, 13 }, { 2, 14 }, { 3, 18 }, { 4, 17 } };
+
+            connectivity[11] = new Dictionary<int, int>() { { 1, 14 }, { 2, 15 }, { 3, 19 }, { 4, 18 } };
+            connectivity[12] = new Dictionary<int, int>() { { 1, 15 }, { 2, 16 }, { 3, 20 }, { 4, 19 } };
+            connectivity[13] = new Dictionary<int, int>() { { 1, 17 }, { 2, 18 }, { 3, 22 }, { 4, 21 } };
+            connectivity[14] = new Dictionary<int, int>() { { 1, 18 }, { 2, 19 }, { 3, 23 }, { 4, 22 } };
+            connectivity[15] = new Dictionary<int, int>() { { 1, 19 }, { 2, 20 }, { 3, 24 }, { 4, 23 } };
 
             return connectivity;
         }
@@ -56,10 +70,10 @@ namespace FiniteElementsProject.Examples
         private static Dictionary<int, bool[]> CreateNodeFAT()
         {
             Dictionary<int, bool[]> nodeFAT = new Dictionary<int, bool[]>();
-            nodeFAT[1] = new bool[] { true, true, false, false, false, false };
-            nodeFAT[2] = new bool[] { true, true, false, false, false, false };
-            nodeFAT[3] = new bool[] { true, true, false, false, false, false };
-            nodeFAT[4] = new bool[] { true, true, false, false, false, false };
+            for (int node = 1; node <= 24; node++)
+            {
+                nodeFAT[node] = new bool[] { true, true, false, false, false, false };
+            }
             return nodeFAT;
         }
 
@@ -67,13 +81,13 @@ namespace FiniteElementsProject.Examples
         {
             double E = 1000.0;
             double A = 1.0;
-            string type = "Bar2D";
+            string type = "Quad4";
             string type2 = "ContactNtN2D";
             Dictionary<int, IElementProperties> elementProperties = new Dictionary<int, IElementProperties>();
-            elementProperties[1] = new ElementProperties(E, A, type);
-            elementProperties[2] = new ElementProperties(E, A, type2);
-            elementProperties[3] = new ElementProperties(E, A, type);
-
+            for (int element = 1; element <= 15; element++)
+            {
+                elementProperties[element] = new ElementProperties(E, A, type);
+            }
             return elementProperties;
         }
 
@@ -84,8 +98,18 @@ namespace FiniteElementsProject.Examples
             assembly.ElementsConnectivity = CreateConnectivity();
             assembly.ElementsProperties = CreateElementProperties();
             assembly.NodeFreedomAllocationList = CreateNodeFAT();
-            assembly.BoundedDOFsVector = new int[] { 1, 2, 4, 6, 7, 8 };
+            assembly.BoundedDOFsVector = new int[] { 1, 2, 3, 4, 5, 6, 7, 8 };
             return assembly;
+        }
+
+        private static double[] CreateExternalForcesVector(Dictionary<int, double> DOFLoads)
+        {
+            double[] forces = new double[40];
+            foreach (KeyValuePair<int, double> loads in DOFLoads)
+            {
+                forces[loads.Key - 1] = loads.Value;
+            }
+            return forces;
         }
 
         public static void RunExample()
@@ -96,7 +120,7 @@ namespace FiniteElementsProject.Examples
 
 
             InitialConditions initialValues = new InitialConditions();
-            initialValues.InitialAccelerationVector = new double[] { 0.0, 10.0 };
+            initialValues.InitialAccelerationVector = new double[] { 0.0, 0.0 };
             initialValues.InitialDisplacementVector = new double[] { 0.0, 0.0 };
             initialValues.InitialVelocityVector = new double[] { 0.0, 0.0 };
             initialValues.InitialTime = 0.0;
@@ -104,8 +128,16 @@ namespace FiniteElementsProject.Examples
             ExplicitSolver newSolver = new ExplicitSolver(1.0, 10);
             newSolver.Assembler = elementsAssembly;
 
+            Dictionary<int, double> externalLoads = new Dictionary<int, double>()
+            {
+                {37, 5000.0 },
+                {38, 5000.0 },
+                {39, 5000.0 },
+                {40, 5000.0 }
+            };
+
             newSolver.InitialValues = initialValues;
-            newSolver.ExternalForcesVector = new double[] { 50.0, 0 };
+            newSolver.ExternalForcesVector = CreateExternalForcesVector(externalLoads);
             newSolver.LinearSolver = new LUFactorization();
             newSolver.ActivateNonLinearSolution = true;
             newSolver.SolveExplicit();
