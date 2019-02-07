@@ -120,9 +120,9 @@ namespace FEC
 
 
             InitialConditions initialValues = new InitialConditions();
-            initialValues.InitialAccelerationVector = new double[] { 0.0, 0.0 };
-            initialValues.InitialDisplacementVector = new double[] { 0.0, 0.0 };
-            initialValues.InitialVelocityVector = new double[] { 0.0, 0.0 };
+            initialValues.InitialAccelerationVector = new double[40];
+            initialValues.InitialDisplacementVector = new double[40];
+            initialValues.InitialVelocityVector = new double[40];
             initialValues.InitialTime = 0.0;
 
             ExplicitSolver newSolver = new ExplicitSolver(1.0, 10);
@@ -139,7 +139,7 @@ namespace FEC
             newSolver.InitialValues = initialValues;
             newSolver.ExternalForcesVector = CreateExternalForcesVector(externalLoads);
             newSolver.LinearSolver = new LUFactorization();
-            newSolver.ActivateNonLinearSolution = true;
+            newSolver.ActivateNonLinearSolution = false;
             newSolver.SolveExplicit();
             newSolver.PrintExplicitSolution();
         }
