@@ -13,7 +13,8 @@ namespace FEC
         public List<int> ElementFreedomList { get; set; }
         public double[] DisplacementVector { get; set; }
         public double poisson { get; set; }
-
+        private double thickness = 1.0; //To be included in Element Properties
+        private double density = 1.0; //To be included in Element Properties
 
         public Quad4(IElementProperties properties, Dictionary<int, INode> nodes)
         {
@@ -46,6 +47,17 @@ namespace FEC
             double N4 = 1.0 / 4.0 * (1 - ksi) * (1 + ihta); shapeFunctions.Add(4, N4);
             
             return shapeFunctions;
+        }
+
+        private double[,] CalculateShapeFunctionMatrix(double ksi, double ihta)
+        {
+            Dictionary<int, double> shapeFunctions = CalculateShapeFunctions(ksi, ihta);
+            double[,] N = new double[,]
+            {
+                {(1.0/4.0)*shapeFunctions[1], 0, (1.0/4.0)*shapeFunctions[2], 0, (1.0/4.0)*shapeFunctions[3], 0, (1.0/4.0)*shapeFunctions[4], 0 },
+                {0, (1.0/4.0)* shapeFunctions[1], 0, (1.0/4.0)*shapeFunctions[2], 0, (1.0/4.0)*shapeFunctions[3], 0, (1.0/4.0)*shapeFunctions[4] }
+            };
+            return N;
         }
 
         private Dictionary<string, double[]> CalculateShapeFunctionsLocalDerivatives(double[] naturalCoordinates)
@@ -213,7 +225,24 @@ namespace FEC
 
         public double[,] CreateMassMatrix()
         {
-            return new double[8, 8];
+            double[,] M = new double[8, 8];
+
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    double[] gP = GaussPoints(i, j).Item1;
+                    double[] gW = GaussPoints(i, j).Item2;
+                    Dictionary<string, double[]> localdN = CalculateShapeFunctionsLocalDerivatives(gP);
+                    double[,] J = CalculateJacobian(localdN);
+                    double[,] invJ = CalculateInverseJacobian(J).Item1;
+                    double detJ = CalculateInverseJacobian(J).Item2;
+                    double[,] Nmatrix = CalculateShapeFunctionMatrix(gP[i], gP[j]);
+                    M = MatrixOperations.MatrixAddition(M, MatrixOperations.ScalarMatrixProductNew(density * thickness * detJ * gW[i] * gW[j],
+                        MatrixOperations.MatrixProduct(MatrixOperations.Transpose(Nmatrix), Nmatrix)));
+                }
+            }
+            return M;
         }
 
         public double[,] CreateDampingMatrix()
