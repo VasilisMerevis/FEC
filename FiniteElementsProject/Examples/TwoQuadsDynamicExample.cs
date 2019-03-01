@@ -79,7 +79,7 @@ namespace FEC
 
         private static Dictionary<int, IElementProperties> CreateElementProperties()
         {
-            double E = 1000.0;
+            double E = 200.0e9;
             double A = 1.0;
             string type = "Quad4";
             string type2 = "ContactNtN2D";
@@ -125,7 +125,7 @@ namespace FEC
             initialValues.InitialVelocityVector = new double[40];
             initialValues.InitialTime = 0.0;
 
-            ExplicitSolver newSolver = new ExplicitSolver(1.0, 10);
+            ExplicitSolver newSolver = new ExplicitSolver(0.1, 10);
             newSolver.Assembler = elementsAssembly;
 
             Dictionary<int, double> externalLoads = new Dictionary<int, double>()
@@ -138,7 +138,7 @@ namespace FEC
 
             newSolver.InitialValues = initialValues;
             newSolver.ExternalForcesVector = CreateExternalForcesVector(externalLoads);
-            newSolver.LinearSolver = new LUFactorization();
+            newSolver.LinearSolver = new BiCGSTABSolver();
             newSolver.ActivateNonLinearSolution = false;
             newSolver.SolveExplicit();
             newSolver.PrintExplicitSolution();

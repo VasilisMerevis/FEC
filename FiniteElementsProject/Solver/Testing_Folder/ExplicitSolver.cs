@@ -21,6 +21,9 @@ namespace FEC
         private double a0, a1, a2, a3;
         private Dictionary<int, double[]> explicitSolution = new Dictionary<int, double[]>();
         public bool ActivateNonLinearSolution { get; set; }
+        public double[,] CustomStiffnessMatrix { get; set; }
+        public double[,] CustomMassMatrix { get; set; }
+        public double[,] CustomDampingMatrix { get; set; }
 
         public ExplicitSolver(double totalTime, int timeStepsNumber)
         {
@@ -93,16 +96,40 @@ namespace FEC
 
         private double[,] CalculateHatMMatrix()
         {
-            double[,] a0M = MatrixOperations.ScalarMatrixProductNew(a0, Assembler.CreateTotalMassMatrix());
-            double[,] a1C = MatrixOperations.ScalarMatrixProductNew(a1, Assembler.CreateTotalDampingMatrix());
+            double[,] TotalMassMatrix;
+            double[,] TotalDampingMatrix;
+            if (CustomMassMatrix != null)
+            {
+                TotalMassMatrix = CustomMassMatrix;
+                TotalDampingMatrix = CustomDampingMatrix;
+            }
+            else
+            {
+                TotalMassMatrix = Assembler.CreateTotalMassMatrix();
+                TotalDampingMatrix = Assembler.CreateTotalDampingMatrix();
+            }
+            double[,] a0M = MatrixOperations.ScalarMatrixProductNew(a0, TotalMassMatrix);
+            double[,] a1C = MatrixOperations.ScalarMatrixProductNew(a1, TotalDampingMatrix);
             double[,] hutM = MatrixOperations.MatrixAddition(a0M, a1C);
             return hutM;
         }
 
         private double[,] CalculateHatKMatrix()
         {
-            double[,] hatK = MatrixOperations.MatrixSubtraction(Assembler.CreateTotalStiffnessMatrix(),
-                                MatrixOperations.ScalarMatrixProductNew(a2, Assembler.CreateTotalMassMatrix()));
+            double[,] TotalMassMatrix;
+            double[,] TotalStiffnessMatrix;
+            if (CustomStiffnessMatrix != null)
+            {
+                TotalMassMatrix = CustomMassMatrix;
+                TotalStiffnessMatrix = CustomStiffnessMatrix;
+            }
+            else
+            {
+                TotalMassMatrix = Assembler.CreateTotalMassMatrix();
+                TotalStiffnessMatrix = Assembler.CreateTotalStiffnessMatrix();
+            }
+            double[,] hatK = MatrixOperations.MatrixSubtraction(TotalStiffnessMatrix,
+                                MatrixOperations.ScalarMatrixProductNew(a2, TotalMassMatrix));
             return hatK;
         }
 

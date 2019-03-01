@@ -54,8 +54,8 @@ namespace FEC
             Dictionary<int, double> shapeFunctions = CalculateShapeFunctions(ksi, ihta);
             double[,] N = new double[,]
             {
-                {(1.0/4.0)*shapeFunctions[1], 0, (1.0/4.0)*shapeFunctions[2], 0, (1.0/4.0)*shapeFunctions[3], 0, (1.0/4.0)*shapeFunctions[4], 0 },
-                {0, (1.0/4.0)* shapeFunctions[1], 0, (1.0/4.0)*shapeFunctions[2], 0, (1.0/4.0)*shapeFunctions[3], 0, (1.0/4.0)*shapeFunctions[4] }
+                {shapeFunctions[1], 0, shapeFunctions[2], 0, shapeFunctions[3], 0, shapeFunctions[4], 0 },
+                {0, shapeFunctions[1], 0, shapeFunctions[2], 0, shapeFunctions[3], 0, shapeFunctions[4] }
             };
             return N;
         }
@@ -242,6 +242,7 @@ namespace FEC
                         MatrixOperations.MatrixProduct(MatrixOperations.Transpose(Nmatrix), Nmatrix)));
                 }
             }
+            //MatrixOperations.PrintMatrix(M);
             return M;
         }
 
