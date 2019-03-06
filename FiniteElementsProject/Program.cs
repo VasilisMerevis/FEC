@@ -31,8 +31,8 @@ namespace FEC
             //CantileverQuadsExample.RunExample();
             //CentralDifferencesTest.SolveExample();
             //DynamicExample.RunExample();
-            //TwoQuadsDynamicExample.RunExample();
-            ExplicitLinearExample.SolveExample();
+            TwoQuadsDynamicExample.RunExample();
+            //ExplicitLinearExample.SolveExample();
             Console.ReadLine();
 
             //NonSymmetricSystem.Solve();
