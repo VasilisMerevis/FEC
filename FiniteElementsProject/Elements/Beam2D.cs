@@ -142,9 +142,27 @@ namespace FEC
             return globalStiffnessMatrix;
         }
 
-        public double[,] CreateMassMatrix()
+        public double[,] CreateMassMatrix() //based on Chandrupatla page 410
         {
-            double[,] globalMassMatrix = new double[6, 6];
+            double length = CalculateElementLength();
+
+            double a = Properties.Density * Properties.SectionArea * length / 6;
+            double b = Properties.Density * Properties.SectionArea * length / 420;
+
+            double[,] localMassMatrix = new double[,]
+            {
+                {2.0*a, 0, 0, a, 0, 0 },
+                {0, 156.0*b, 22.0*Math.Pow(length,2)*b, 0, 54.0*b, -13.0*length*b },
+                {0, 22.0*Math.Pow(length,2)*b, 4.0*Math.Pow(length,2)*b, 0, 13.0*length*b, -3.0*Math.Pow(length,2)*b },
+                {a, 0, 0, 2.0*a, 0, 0 },
+                {0, 54.0*b, 13.0*length*b, 0, 156.0*b, -22.0*length*b },
+                {0, -13.0*length*b, -3.0*Math.Pow(length,2)*b, 0, -22.0*length*b, 4.0*Math.Pow(length,2)*b }
+            };
+            double[,] lambda = CreateLambdaMatrix();
+            double[,] globalMassMatrix = MatrixOperations.MatrixProduct
+                (
+                    MatrixOperations.Transpose(lambda), MatrixOperations.MatrixProduct(localMassMatrix, lambda)
+                );
             return globalMassMatrix;
         }
 
