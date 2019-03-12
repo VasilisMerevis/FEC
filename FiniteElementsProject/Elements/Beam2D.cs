@@ -168,7 +168,7 @@ namespace FEC
 
         public double[,] CreateDampingMatrix()
         {
-            throw new Exception("Not implemented");
+            return new double[6,6];
         }
 
         public double[] CreateInternalGlobalForcesVector()
