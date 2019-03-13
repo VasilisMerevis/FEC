@@ -11,7 +11,7 @@ namespace FEC
         public ILinearSolution LinearSolver { get; set; }
         public double[] ExternalForcesVector { get; set; }
         public InitialConditions InitialValues { get; set; }
-        private int numberOfLoadSteps;
+        private int numberOfLoadSteps = 10;
         private double tolerance;
         private int maxIterations;
         private double lambda;

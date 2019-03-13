@@ -54,7 +54,7 @@ namespace FEC
             assembly.ElementsConnectivity = CreateConnectivity();
             assembly.ElementsProperties = CreateElementProperties();
             assembly.NodeFreedomAllocationList = CreateNodeFAT();
-            assembly.BoundedDOFsVector = new int[] { 1, 2, 3, 6 };
+            assembly.BoundedDOFsVector = new int[] { 1, 2, 3, 4, 6 };
             return assembly;
         }
 
@@ -66,19 +66,19 @@ namespace FEC
 
 
             InitialConditions initialValues = new InitialConditions();
-            initialValues.InitialAccelerationVector = new double[6];
-            initialValues.InitialDisplacementVector = new double[6];
-            initialValues.InitialDisplacementVector[2] = 0.2146;
-            initialValues.InitialVelocityVector = new double[6];
+            initialValues.InitialAccelerationVector = new double[1];
+            initialValues.InitialDisplacementVector = new double[1];
+            initialValues.InitialDisplacementVector[0] = 0.2146;
+            initialValues.InitialVelocityVector = new double[1];
             initialValues.InitialTime = 0.0;
 
-            ExplicitSolver newSolver = new ExplicitSolver(1.0, 10);
+            ExplicitSolver newSolver = new ExplicitSolver(1.0, 100);
             newSolver.Assembler = elementsAssembly;
 
             newSolver.InitialValues = initialValues;
-            newSolver.ExternalForcesVector = new double[] { 0.0, 0.0 };
+            newSolver.ExternalForcesVector = new double[] { 0.0 };
             newSolver.LinearSolver = new LUFactorization();
-            newSolver.ActivateNonLinearSolution = false;
+            newSolver.ActivateNonLinearSolution = true;
             newSolver.SolveExplicit();
             newSolver.PrintExplicitSolution();
         }
