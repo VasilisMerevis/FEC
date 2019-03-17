@@ -20,7 +20,8 @@ namespace FEC
             //Console.WriteLine();
             //LinearTrussInContactExample.RunExample();
             //Console.WriteLine();
-            //CantileverInContact.RunExample();
+            //CantileverInContact.RunStaticExample();
+            CantileverInContact.RunDynamicExample();
             //Console.WriteLine();
             //TwoBeamsInContactExample.RunExample();
             //Console.WriteLine();
@@ -33,7 +34,7 @@ namespace FEC
             //DynamicExample.RunExample();
             //TwoQuadsDynamicExample.RunExample();
             //ExplicitLinearExample.SolveExample();
-            BeamDynamicExample.RunExample();
+            //BeamDynamicExample.RunExample();
 
             Console.ReadLine();
 
