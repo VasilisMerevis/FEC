@@ -12,8 +12,8 @@ namespace FEC
         public double[] ExternalForcesVector { get; set; }
         public InitialConditions InitialValues { get; set; }
         private int numberOfLoadSteps = 10;
-        private double tolerance;
-        private int maxIterations;
+        private double tolerance = 10.0e-4;
+        private int maxIterations = 1000;
         private double lambda;
         private double totalTime;
         private int timeStepsNumber;
