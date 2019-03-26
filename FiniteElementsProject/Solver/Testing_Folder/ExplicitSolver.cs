@@ -11,8 +11,8 @@ namespace FEC
         public ILinearSolution LinearSolver { get; set; }
         public double[] ExternalForcesVector { get; set; }
         public InitialConditions InitialValues { get; set; }
-        private int numberOfLoadSteps = 10;
-        private double tolerance = 10.0e-4;
+        private int numberOfLoadSteps = 1;
+        private double tolerance = 10.0e-2;
         private int maxIterations = 1000;
         private double lambda;
         private double totalTime;
@@ -60,6 +60,10 @@ namespace FEC
                 double[,] tangentMatrix = CalculateHatMMatrix();
                 dU = LinearSolver.Solve(tangentMatrix, incrementDf);
                 solutionVector = VectorOperations.VectorVectorAddition(solutionVector, dU);
+
+                //Assembler.UpdateDisplacements(solutionVector);
+                //internalForcesTotalVector = Assembler.CreateTotalInternalForcesVector();
+
                 residual = VectorOperations.VectorVectorSubtraction(internalForcesTotalVector, incrementalExternalForcesVector);
                 residualNorm = VectorOperations.VectorNorm2(residual);
                 int iteration = 0;

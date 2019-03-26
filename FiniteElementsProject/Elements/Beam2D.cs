@@ -13,6 +13,7 @@ namespace FEC
         public Dictionary<int, bool[]> ElementFreedomSignature { get; } = new Dictionary<int, bool[]>();
         public List<int> ElementFreedomList { get; set; }
         public double[] DisplacementVector { get; set; }
+        private bool ActivateLumbedMassMatrix = false;
 
 
         public Beam2D(IElementProperties properties, Dictionary<int, INode> nodes)
@@ -142,12 +143,16 @@ namespace FEC
             return globalStiffnessMatrix;
         }
 
-        public double[,] CreateMassMatrix() //based on Chandrupatla page 410
+        /// <summary>
+        /// Creates a Consistent Mass Matrix in local coordinate system
+        /// </summary>
+        /// <returns></returns>
+        public double[,] CreateConsistentMassMatrix() //based on Chandrupatla page 410
         {
             double length = CalculateElementLength();
 
-            double a = Properties.Density * Properties.SectionArea * length / 6;
-            double b = Properties.Density * Properties.SectionArea * length / 420;
+            double a = Properties.Density * Properties.SectionArea * length / 6.0;
+            double b = Properties.Density * Properties.SectionArea * length / 420.0;
 
             double[,] localMassMatrix = new double[,]
             {
@@ -158,7 +163,42 @@ namespace FEC
                 {0, 54.0*b, 13.0*length*b, 0, 156.0*b, -22.0*length*b },
                 {0, -13.0*length*b, -3.0*Math.Pow(length,2)*b, 0, -22.0*length*b, 4.0*Math.Pow(length,2)*b }
             };
+            return localMassMatrix;
+        }
+
+        /// <summary>
+        /// Creates a Lumped Mass Matrix in local coordinate system
+        /// </summary>
+        /// <returns></returns>
+        public double[,] CreateLumpedMassMatrix() //based on Bathe page 817 (mixed truss and beam elements)
+        {
+            double length = CalculateElementLength();
+
+            double a = Properties.Density * Properties.SectionArea * length / 24.0;
+
+            double[,] localMassMatrix = new double[6, 6];
+            localMassMatrix[0, 0] = a * 12.0;
+            localMassMatrix[1, 1] = localMassMatrix[0, 0];
+            localMassMatrix[2, 2] = a * Math.Pow(length, 2);
+            localMassMatrix[3, 3] = localMassMatrix[0, 0];
+            localMassMatrix[4, 4] = localMassMatrix[0, 0];
+            localMassMatrix[5, 5] = localMassMatrix[2, 2];
+
+            return localMassMatrix;
+        }
+
+        public double[,] CreateMassMatrix()
+        {
             double[,] lambda = CreateLambdaMatrix();
+            double[,] localMassMatrix;
+            if (ActivateLumbedMassMatrix == true)
+            {
+                localMassMatrix = CreateLumpedMassMatrix();
+            }
+            else
+            {
+                localMassMatrix = CreateConsistentMassMatrix();
+            }
             double[,] globalMassMatrix = MatrixOperations.MatrixProduct
                 (
                     MatrixOperations.Transpose(lambda), MatrixOperations.MatrixProduct(localMassMatrix, lambda)

@@ -72,13 +72,13 @@ namespace FEC
             initialValues.InitialVelocityVector = new double[1];
             initialValues.InitialTime = 0.0;
 
-            ExplicitSolver newSolver = new ExplicitSolver(1.0, 100);
+            ExplicitSolver newSolver = new ExplicitSolver(1.0, 20);
             newSolver.Assembler = elementsAssembly;
 
             newSolver.InitialValues = initialValues;
             newSolver.ExternalForcesVector = new double[] { 0.0 };
             newSolver.LinearSolver = new LUFactorization();
-            newSolver.ActivateNonLinearSolution = true;
+            newSolver.ActivateNonLinearSolution =  true;
             newSolver.SolveExplicit();
             newSolver.PrintExplicitSolution();
         }
