@@ -61,8 +61,8 @@ namespace FEC
                 dU = LinearSolver.Solve(tangentMatrix, incrementDf);
                 solutionVector = VectorOperations.VectorVectorAddition(solutionVector, dU);
 
-                //Assembler.UpdateDisplacements(solutionVector);
-                //internalForcesTotalVector = Assembler.CreateTotalInternalForcesVector();
+                Assembler.UpdateDisplacements(solutionVector);
+                internalForcesTotalVector = Assembler.CreateTotalInternalForcesVector();
 
                 residual = VectorOperations.VectorVectorSubtraction(internalForcesTotalVector, incrementalExternalForcesVector);
                 residualNorm = VectorOperations.VectorNorm2(residual);
@@ -87,7 +87,20 @@ namespace FEC
             return solutionVector;
         }
 
-        
+        /// <summary>
+        /// Calculates accelerations for time t
+        /// </summary>
+        /// <returns></returns>
+        private double[] CalculateAccelerations() //Bathe page 771
+        {
+            int steps = explicitSolution.Count;
+            double[] aCurrent =
+                VectorOperations.VectorScalarProductNew(
+                    VectorOperations.VectorVectorAddition(explicitSolution[steps - 2],
+                        VectorOperations.VectorVectorAddition(
+                            VectorOperations.VectorScalarProductNew(explicitSolution[steps - 1], -2.0), explicitSolution[steps])), a0);
+            return aCurrent;
+        }
 
         private double[] CalculatePreviousDisplacementVector()
         {

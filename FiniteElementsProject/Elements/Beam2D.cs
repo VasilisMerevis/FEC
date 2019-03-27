@@ -220,6 +220,7 @@ namespace FEC
             double[,] KxL = MatrixOperations.MatrixProduct(localStiff, lambda);
             globalStiffnessMatrix = MatrixOperations.MatrixProduct(transposeLocalStiff, KxL);
             double[] globalInternalForcesVector = VectorOperations.MatrixVectorProduct(globalStiffnessMatrix, DisplacementVector);
+            MatrixOperations.PrintMatrix(globalStiffnessMatrix);
             return globalInternalForcesVector;
         }
     }
