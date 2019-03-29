@@ -13,6 +13,7 @@ namespace FEC
         public Dictionary<int, bool[]> ElementFreedomSignature { get; } = new Dictionary<int, bool[]>();
         public List<int> ElementFreedomList { get; set; }
         public double[] DisplacementVector { get; set; }
+        public double[] AccelerationVector { get; set; }
         private bool ActivateLumbedMassMatrix = false;
 
 
@@ -219,9 +220,15 @@ namespace FEC
             double[,] transposeLocalStiff = MatrixOperations.Transpose(lambda);
             double[,] KxL = MatrixOperations.MatrixProduct(localStiff, lambda);
             globalStiffnessMatrix = MatrixOperations.MatrixProduct(transposeLocalStiff, KxL);
-            double[] globalInternalForcesVector = VectorOperations.MatrixVectorProduct(globalStiffnessMatrix, DisplacementVector);
-            MatrixOperations.PrintMatrix(globalStiffnessMatrix);
-            return globalInternalForcesVector;
+            double[] stiffPart = VectorOperations.MatrixVectorProduct(globalStiffnessMatrix, DisplacementVector);
+            
+            if (AccelerationVector != null)
+            {
+                double[,] globalMassMatrix = CreateMassMatrix();
+                double[] massPart = VectorOperations.MatrixVectorProduct(globalMassMatrix, AccelerationVector);
+                stiffPart = VectorOperations.VectorVectorAddition(stiffPart, massPart);
+            }            
+            return stiffPart;
         }
     }
 }

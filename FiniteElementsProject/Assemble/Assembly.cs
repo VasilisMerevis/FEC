@@ -131,6 +131,23 @@ namespace FEC
             }
         }
 
+        public void UpdateAccelerations(double[] totalAccelerationsVector)
+        {
+            double[] fullTotalAccelerationsVector = BoundaryConditionsImposition.CreateFullVectorFromReducedVector(totalAccelerationsVector, BoundedDOFsVector);
+            for (int element = 1; element <= ElementsConnectivity.Count; element++)
+            {
+                int elementDofs = ElementsAssembly[element].ElementFreedomList.Count;
+                double[] elementAccelerationsVector = new double[elementDofs];
+                for (int i = 0; i < elementDofs; i++)
+                {
+                    int localRow = i;
+                    int globalRow = ElementsAssembly[element].ElementFreedomList[i];
+                    elementAccelerationsVector[localRow] = fullTotalAccelerationsVector[globalRow];
+                }
+                ElementsAssembly[element].AccelerationVector = elementAccelerationsVector;
+            }
+        }
+
         public double[,] CreateTotalStiffnessMatrix()
         {
             double[,] totalStiffnessMatrix = new double[totalDOF, totalDOF];

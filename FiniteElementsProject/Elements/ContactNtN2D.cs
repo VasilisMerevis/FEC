@@ -12,6 +12,7 @@ namespace FEC
         public Dictionary<int, bool[]> ElementFreedomSignature { get; } = new Dictionary<int, bool[]>();
         public List<int> ElementFreedomList { get; set; }
         public double[] DisplacementVector { get; set; }
+        public double[] AccelerationVector { get; set; }
         private double PenaltyFactor { get; set; }
 
         public ContactNtN2D(IElementProperties properties, Dictionary<int, INode> nodes)

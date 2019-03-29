@@ -18,6 +18,7 @@ namespace FEC
         double[,] CreateGlobalStiffnessMatrix();
         double[,] CreateMassMatrix();
         double[] DisplacementVector { get; set; }
+        double[] AccelerationVector { get; set; }
         double[] CreateInternalGlobalForcesVector();
         double[,] CreateDampingMatrix();
     }

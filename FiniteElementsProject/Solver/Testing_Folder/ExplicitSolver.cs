@@ -49,20 +49,23 @@ namespace FEC
             double[] dU;
             double[] residual;
             double residualNorm;
-
+            Assembler.UpdateAccelerations(CalculateAccelerations(InitialValues.InitialAccelerationVector));
 
             for (int i = 0; i < numberOfLoadSteps; i++)
             {
                 incrementalExternalForcesVector = VectorOperations.VectorVectorAddition(incrementalExternalForcesVector, incrementDf);
                 Assembler.UpdateDisplacements(solutionVector);
+
+                Assembler.UpdateAccelerations(CalculateAccelerations(solutionVector));
+
                 internalForcesTotalVector = Assembler.CreateTotalInternalForcesVector();
                 //double[,] stiffnessMatrix = Assembler.CreateTotalStiffnessMatrix();
                 double[,] tangentMatrix = CalculateHatMMatrix();
                 dU = LinearSolver.Solve(tangentMatrix, incrementDf);
                 solutionVector = VectorOperations.VectorVectorAddition(solutionVector, dU);
 
-                Assembler.UpdateDisplacements(solutionVector);
-                internalForcesTotalVector = Assembler.CreateTotalInternalForcesVector();
+                //Assembler.UpdateDisplacements(solutionVector);
+                //internalForcesTotalVector = Assembler.CreateTotalInternalForcesVector();
 
                 residual = VectorOperations.VectorVectorSubtraction(internalForcesTotalVector, incrementalExternalForcesVector);
                 residualNorm = VectorOperations.VectorNorm2(residual);
@@ -75,6 +78,9 @@ namespace FEC
                     deltaU = VectorOperations.VectorVectorSubtraction(deltaU, LinearSolver.Solve(tangentMatrix, residual));
                     tempSolutionVector = VectorOperations.VectorVectorAddition(solutionVector, deltaU);
                     Assembler.UpdateDisplacements(tempSolutionVector);
+
+                    Assembler.UpdateAccelerations(CalculateAccelerations(solutionVector));
+
                     internalForcesTotalVector = Assembler.CreateTotalInternalForcesVector();
                     residual = VectorOperations.VectorVectorSubtraction(internalForcesTotalVector, incrementalExternalForcesVector);
                     residualNorm = VectorOperations.VectorNorm2(residual);
@@ -91,14 +97,14 @@ namespace FEC
         /// Calculates accelerations for time t
         /// </summary>
         /// <returns></returns>
-        private double[] CalculateAccelerations() //Bathe page 771
+        private double[] CalculateAccelerations(double[] lastDisplacementVector) //Bathe page 771
         {
             int steps = explicitSolution.Count;
             double[] aCurrent =
                 VectorOperations.VectorScalarProductNew(
-                    VectorOperations.VectorVectorAddition(explicitSolution[steps - 2],
+                    VectorOperations.VectorVectorAddition(explicitSolution[steps - 3],
                         VectorOperations.VectorVectorAddition(
-                            VectorOperations.VectorScalarProductNew(explicitSolution[steps - 1], -2.0), explicitSolution[steps])), a0);
+                            VectorOperations.VectorScalarProductNew(explicitSolution[steps-2], -2.0), lastDisplacementVector)), a0);
             return aCurrent;
         }
 

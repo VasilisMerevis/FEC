@@ -16,6 +16,7 @@ namespace FEC
         bool ActivateBoundaryConditions { get; set; }
         int[] BoundedDOFsVector { get; set; }
         void UpdateDisplacements(double[] totalDisplacementVector);
+        void UpdateAccelerations(double[] totalAccelerationsVector);
         double[] CreateTotalInternalForcesVector();
         double[,] CreateTotalMassMatrix();
         double[,] CreateTotalDampingMatrix();
