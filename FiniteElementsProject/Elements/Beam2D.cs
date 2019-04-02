@@ -14,7 +14,7 @@ namespace FEC
         public List<int> ElementFreedomList { get; set; }
         public double[] DisplacementVector { get; set; }
         public double[] AccelerationVector { get; set; }
-        private bool ActivateLumbedMassMatrix = false;
+        private bool ActivateLumbedMassMatrix = true;
 
 
         public Beam2D(IElementProperties properties, Dictionary<int, INode> nodes)
@@ -176,13 +176,14 @@ namespace FEC
             double length = CalculateElementLength();
 
             double a = Properties.Density * Properties.SectionArea * length / 24.0;
+            double b = Properties.Density * length / 2.0;
 
             double[,] localMassMatrix = new double[6, 6];
-            localMassMatrix[0, 0] = a * 12.0;
-            localMassMatrix[1, 1] = localMassMatrix[0, 0];
+            localMassMatrix[0, 0] = b;
+            localMassMatrix[1, 1] = a * 12.0;
             localMassMatrix[2, 2] = a * Math.Pow(length, 2);
             localMassMatrix[3, 3] = localMassMatrix[0, 0];
-            localMassMatrix[4, 4] = localMassMatrix[0, 0];
+            localMassMatrix[4, 4] = localMassMatrix[1, 1];
             localMassMatrix[5, 5] = localMassMatrix[2, 2];
 
             return localMassMatrix;
@@ -225,7 +226,7 @@ namespace FEC
             if (AccelerationVector != null)
             {
                 double[,] globalMassMatrix = CreateMassMatrix();
-                double[] massPart = VectorOperations.MatrixVectorProduct(globalMassMatrix, AccelerationVector);
+                double[] massPart = VectorOperations.MatrixVectorProduct(globalMassMatrix, VectorOperations.VectorScalarProductNew(AccelerationVector, -1.0));
                 stiffPart = VectorOperations.VectorVectorAddition(stiffPart, massPart);
             }            
             return stiffPart;

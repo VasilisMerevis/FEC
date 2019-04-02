@@ -49,7 +49,7 @@ namespace FEC
             double[] dU;
             double[] residual;
             double residualNorm;
-            Assembler.UpdateAccelerations(CalculateAccelerations(InitialValues.InitialAccelerationVector));
+            //Assembler.UpdateAccelerations(CalculateAccelerations(InitialValues.InitialAccelerationVector));
 
             for (int i = 0; i < numberOfLoadSteps; i++)
             {
@@ -59,35 +59,35 @@ namespace FEC
                 Assembler.UpdateAccelerations(CalculateAccelerations(solutionVector));
 
                 internalForcesTotalVector = Assembler.CreateTotalInternalForcesVector();
-                //double[,] stiffnessMatrix = Assembler.CreateTotalStiffnessMatrix();
+
                 double[,] tangentMatrix = CalculateHatMMatrix();
                 dU = LinearSolver.Solve(tangentMatrix, incrementDf);
                 solutionVector = VectorOperations.VectorVectorAddition(solutionVector, dU);
-
-                //Assembler.UpdateDisplacements(solutionVector);
-                //internalForcesTotalVector = Assembler.CreateTotalInternalForcesVector();
+                
+                Assembler.UpdateDisplacements(solutionVector);
+                tangentMatrix = CalculateHatMMatrix();
+                internalForcesTotalVector = Assembler.CreateTotalInternalForcesVector();
 
                 residual = VectorOperations.VectorVectorSubtraction(internalForcesTotalVector, incrementalExternalForcesVector);
                 residualNorm = VectorOperations.VectorNorm2(residual);
                 int iteration = 0;
                 Array.Clear(deltaU, 0, deltaU.Length);
-                while (residualNorm > tolerance && iteration < maxIterations)
-                {
-                    //stiffnessMatrix = Assembler.CreateTotalStiffnessMatrix();
-                    tangentMatrix = CalculateHatMMatrix();
-                    deltaU = VectorOperations.VectorVectorSubtraction(deltaU, LinearSolver.Solve(tangentMatrix, residual));
-                    tempSolutionVector = VectorOperations.VectorVectorAddition(solutionVector, deltaU);
-                    Assembler.UpdateDisplacements(tempSolutionVector);
+                //while (residualNorm > tolerance && iteration < maxIterations)
+                //{
+                //    tangentMatrix = CalculateHatMMatrix();
+                //    deltaU = VectorOperations.VectorVectorSubtraction(deltaU, LinearSolver.Solve(tangentMatrix, residual));
+                //    tempSolutionVector = VectorOperations.VectorVectorAddition(solutionVector, deltaU);
+                //    Assembler.UpdateDisplacements(tempSolutionVector);
 
-                    Assembler.UpdateAccelerations(CalculateAccelerations(solutionVector));
+                //    Assembler.UpdateAccelerations(CalculateAccelerations(solutionVector));
 
-                    internalForcesTotalVector = Assembler.CreateTotalInternalForcesVector();
-                    residual = VectorOperations.VectorVectorSubtraction(internalForcesTotalVector, incrementalExternalForcesVector);
-                    residualNorm = VectorOperations.VectorNorm2(residual);
-                    iteration = iteration + 1;
-                }
-                solutionVector = VectorOperations.VectorVectorAddition(solutionVector, deltaU);
-                if (iteration >= maxIterations) Console.WriteLine("Newton-Raphson: Solution not converged at current iterations");
+                //    internalForcesTotalVector = Assembler.CreateTotalInternalForcesVector();
+                //    residual = VectorOperations.VectorVectorSubtraction(internalForcesTotalVector, incrementalExternalForcesVector);
+                //    residualNorm = VectorOperations.VectorNorm2(residual);
+                //    iteration = iteration + 1;
+                //}
+                //solutionVector = VectorOperations.VectorVectorAddition(solutionVector, deltaU);
+                //if (iteration >= maxIterations) Console.WriteLine("Newton-Raphson: Solution not converged at current iterations");
             }
 
             return solutionVector;

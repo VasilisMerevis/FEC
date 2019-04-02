@@ -69,10 +69,12 @@ namespace FEC
             IAssembly elementsAssembly = CreateAssembly();
             elementsAssembly.CreateElementsAssembly();
             elementsAssembly.ActivateBoundaryConditions = true;
-            double[,] globalStiffnessMatrix = elementsAssembly.CreateTotalStiffnessMatrix();
+            //double[,] globalStiffnessMatrix = elementsAssembly.CreateTotalStiffnessMatrix();
 
             ISolver newSolu = new StaticSolver();
             newSolu.LinearScheme = new PCGSolver();
+            newSolu.NonLinearScheme = new LoadControlledNewtonRaphson();
+            newSolu.ActivateNonLinearSolver = false;
             
 
             double[] externalForces = new double[] { 1, 0, 0, 2, 0, 0, 0, 0, 0 };
