@@ -11,7 +11,7 @@ namespace FEC
         public ILinearSolution LinearSolver { get; set; }
         public double[] ExternalForcesVector { get; set; }
         public InitialConditions InitialValues { get; set; }
-        private int numberOfLoadSteps = 1;
+        private int numberOfLoadSteps = 10;
         private double tolerance = 10.0e-2;
         private int maxIterations = 1000;
         private double lambda;
@@ -89,6 +89,45 @@ namespace FEC
                 //solutionVector = VectorOperations.VectorVectorAddition(solutionVector, deltaU);
                 //if (iteration >= maxIterations) Console.WriteLine("Newton-Raphson: Solution not converged at current iterations");
             }
+
+            return solutionVector;
+        }
+
+        private double[] NewtonIterations(double[] forceVector)
+        {
+
+            lambda = 1.0 / numberOfLoadSteps;
+            double[] incrementDf = VectorOperations.VectorScalarProductNew(forceVector, lambda);
+            double[] solutionVector = new double[forceVector.Length];
+            double[] incrementalExternalForcesVector = new double[forceVector.Length];
+            double[] tempSolutionVector = new double[solutionVector.Length];
+            double[] deltaU = new double[solutionVector.Length];
+            double[] internalForcesTotalVector;
+            double[] dU;
+            double[] residual;
+            double residualNorm;
+
+            residual = VectorOperations.VectorVectorSubtraction(incrementalExternalForcesVector, Assembler.CreateTotalInternalForcesVector());
+            int iteration = 0;
+            Array.Clear(deltaU, 0, deltaU.Length);
+            for (int i = 0; i < maxIterations; i++)
+            {
+                double[,] tangentMatrix = CalculateHatMMatrix();
+                deltaU = VectorOperations.VectorVectorSubtraction(deltaU, LinearSolver.Solve(tangentMatrix, residual));
+                solutionVector = VectorOperations.VectorVectorAddition(solutionVector, deltaU);
+                Assembler.UpdateDisplacements(solutionVector);
+                Assembler.UpdateAccelerations(CalculateAccelerations(solutionVector));
+
+                internalForcesTotalVector = Assembler.CreateTotalInternalForcesVector();
+                residual = VectorOperations.VectorVectorSubtraction(incrementalExternalForcesVector, internalForcesTotalVector);
+                residualNorm = VectorOperations.VectorNorm2(residual);
+                if (residualNorm < tolerance)
+                {
+                    break;
+                }
+                iteration = iteration + 1;
+            }
+            if (iteration >= maxIterations) Console.WriteLine("Newton-Raphson: Solution not converged at current iterations");
 
             return solutionVector;
         }
@@ -185,7 +224,7 @@ namespace FEC
                 }
                 else
                 {
-                    nextSolution = LoadControlledNR(hatRVector);
+                    nextSolution = NewtonIterations(hatRVector);
                 }
                 explicitSolution.Add(i, nextSolution);
             }
