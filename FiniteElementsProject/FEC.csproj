@@ -88,6 +88,7 @@
     <Compile Include="Solver\Linear\LinearSolution.cs" />
     <Compile Include="Solver\NonLinear\INonLinearSolution.cs" />
     <Compile Include="Solver\NonLinear\NonLinearSchemes\LoadControlledNewtonRaphson.cs" />
+    <Compile Include="Solver\NonLinear\NonLinearSchemes\NewtonIterations.cs" />
     <Compile Include="Solver\NonLinear\NonLinearSolution.cs" />
     <Compile Include="Solver\Static.cs" />
     <Compile Include="Solver\Testing_Folder\DynamicScheme.cs" />

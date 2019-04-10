@@ -226,7 +226,7 @@ namespace FEC
             if (AccelerationVector != null)
             {
                 double[,] globalMassMatrix = CreateMassMatrix();
-                double[] massPart = VectorOperations.MatrixVectorProduct(globalMassMatrix, VectorOperations.VectorScalarProductNew(AccelerationVector, -1.0));
+                double[] massPart = VectorOperations.MatrixVectorProduct(globalMassMatrix, VectorOperations.VectorScalarProductNew(AccelerationVector, 1.0));
                 stiffPart = VectorOperations.VectorVectorAddition(stiffPart, massPart);
             }            
             return stiffPart;
