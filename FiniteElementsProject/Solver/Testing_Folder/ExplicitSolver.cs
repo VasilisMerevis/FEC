@@ -20,6 +20,7 @@ namespace FEC
         private double timeStep;
         private double a0, a1, a2, a3;
         private Dictionary<int, double[]> explicitSolution = new Dictionary<int, double[]>();
+        private Dictionary<int, double[]> explicitAcceleration = new Dictionary<int, double[]>();
         public bool ActivateNonLinearSolution { get; set; }
         public double[,] CustomStiffnessMatrix { get; set; }
         public double[,] CustomMassMatrix { get; set; }
@@ -56,7 +57,7 @@ namespace FEC
                 incrementalExternalForcesVector = VectorOperations.VectorVectorAddition(incrementalExternalForcesVector, incrementDf);
                 Assembler.UpdateDisplacements(solutionVector);
 
-                Assembler.UpdateAccelerations(CalculateAccelerations(solutionVector));
+                Assembler.UpdateAccelerations(CalculateAccelerations());
 
                 internalForcesTotalVector = Assembler.CreateTotalInternalForcesVector();
 
@@ -108,17 +109,18 @@ namespace FEC
             solutionVector = explicitSolution.Values.Last();
 
             Assembler.UpdateDisplacements(solutionVector);
-            Assembler.UpdateAccelerations(CalculateAccelerations(solutionVector));
+            Assembler.UpdateAccelerations(CalculateAccelerations());
             residual = VectorOperations.VectorVectorSubtraction(forceVector, Assembler.CreateTotalInternalForcesVector());
             int iteration = 0;
             Array.Clear(deltaU, 0, deltaU.Length);
+
             for (int i = 0; i < maxIterations; i++)
             {
                 double[,] tangentMatrix = CalculateHatMMatrix();
                 deltaU = LinearSolver.Solve(tangentMatrix, residual);
                 solutionVector = VectorOperations.VectorVectorAddition(solutionVector, deltaU);
                 Assembler.UpdateDisplacements(solutionVector);
-                Assembler.UpdateAccelerations(CalculateAccelerations(solutionVector));
+                //Assembler.UpdateAccelerations(CalculateAccelerations());
 
                 internalForcesTotalVector = Assembler.CreateTotalInternalForcesVector();
                 residual = VectorOperations.VectorVectorSubtraction(forceVector, internalForcesTotalVector);
@@ -138,14 +140,14 @@ namespace FEC
         /// Calculates accelerations for time t
         /// </summary>
         /// <returns></returns>
-        private double[] CalculateAccelerations(double[] lastDisplacementVector) //Bathe page 771
+        private double[] CalculateAccelerations() //Bathe page 771
         {
             int steps = explicitSolution.Count;
             double[] aCurrent =
                 VectorOperations.VectorScalarProductNew(
-                    VectorOperations.VectorVectorAddition(explicitSolution[steps - 3],
+                    VectorOperations.VectorVectorAddition(explicitSolution[steps - 2],
                         VectorOperations.VectorVectorAddition(
-                            VectorOperations.VectorScalarProductNew(explicitSolution[steps-2], -2.0), lastDisplacementVector)), a0);
+                            VectorOperations.VectorScalarProductNew(explicitSolution[steps-1], -2.0), explicitSolution[steps])), a0);
             return aCurrent;
         }
 
@@ -215,6 +217,7 @@ namespace FEC
             double[,] hatMassMatrix = CalculateHatMMatrix();
             explicitSolution.Add(-1, CalculatePreviousDisplacementVector());
             explicitSolution.Add(0, InitialValues.InitialDisplacementVector);
+            explicitAcceleration.Add(0, InitialValues.InitialAccelerationVector);
             double[] nextSolution;
             for (int i = 1; i < timeStepsNumber; i++)
             {
@@ -229,6 +232,7 @@ namespace FEC
                     nextSolution = NewtonIterations(hatRVector);
                 }
                 explicitSolution.Add(i, nextSolution);
+                explicitAcceleration.Add(i, CalculateAccelerations());
             }
         }
 
