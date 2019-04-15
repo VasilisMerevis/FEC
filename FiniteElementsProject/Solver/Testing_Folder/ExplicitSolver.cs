@@ -57,7 +57,7 @@ namespace FEC
                 incrementalExternalForcesVector = VectorOperations.VectorVectorAddition(incrementalExternalForcesVector, incrementDf);
                 Assembler.UpdateDisplacements(solutionVector);
 
-                Assembler.UpdateAccelerations(CalculateAccelerations());
+                Assembler.UpdateAccelerations(explicitAcceleration.Values.Last());
 
                 internalForcesTotalVector = Assembler.CreateTotalInternalForcesVector();
 
@@ -109,7 +109,8 @@ namespace FEC
             solutionVector = explicitSolution.Values.Last();
 
             Assembler.UpdateDisplacements(solutionVector);
-            Assembler.UpdateAccelerations(CalculateAccelerations());
+
+            Assembler.UpdateAccelerations(explicitAcceleration.Values.Last());
             residual = VectorOperations.VectorVectorSubtraction(forceVector, Assembler.CreateTotalInternalForcesVector());
             int iteration = 0;
             Array.Clear(deltaU, 0, deltaU.Length);
@@ -127,10 +128,11 @@ namespace FEC
                 residualNorm = VectorOperations.VectorNorm2(residual);
                 if (residualNorm < tolerance)
                 {
-                    continue;
+                    break;
                 }
                 iteration = iteration + 1;
             }
+            Console.WriteLine(iteration);
             if (iteration >= maxIterations) Console.WriteLine("Newton-Raphson: Solution not converged at current iterations");
 
             return solutionVector;
@@ -145,10 +147,26 @@ namespace FEC
             int steps = explicitSolution.Count;
             double[] aCurrent =
                 VectorOperations.VectorScalarProductNew(
-                    VectorOperations.VectorVectorAddition(explicitSolution[steps - 2],
+                    VectorOperations.VectorVectorAddition(explicitSolution[steps - 4],
                         VectorOperations.VectorVectorAddition(
-                            VectorOperations.VectorScalarProductNew(explicitSolution[steps-1], -2.0), explicitSolution[steps])), a0);
+                            VectorOperations.VectorScalarProductNew(explicitSolution[steps - 3], -2.0), explicitSolution[steps-2])), a0);
+
             return aCurrent;
+        }
+
+        private double[] CalculateInitialAccelerations() //Bathe page 771
+        {
+            int step = explicitSolution.Count - 2;
+            Assembler.UpdateDisplacements(explicitSolution[step]);
+            double[,] stiffness = Assembler.CreateTotalStiffnessMatrix();
+            double[,] mass = Assembler.CreateTotalMassMatrix();
+
+            double[] Ku = VectorOperations.MatrixVectorProduct(stiffness, explicitSolution[step]);
+            double[] RHS = VectorOperations.VectorVectorSubtraction(ExternalForcesVector, Ku);
+
+            double[] acceleration = LinearSolver.Solve(mass, RHS);
+
+            return acceleration;
         }
 
         private double[] CalculatePreviousDisplacementVector()
@@ -217,7 +235,7 @@ namespace FEC
             double[,] hatMassMatrix = CalculateHatMMatrix();
             explicitSolution.Add(-1, CalculatePreviousDisplacementVector());
             explicitSolution.Add(0, InitialValues.InitialDisplacementVector);
-            explicitAcceleration.Add(0, InitialValues.InitialAccelerationVector);
+            explicitAcceleration.Add(0, CalculateInitialAccelerations());
             double[] nextSolution;
             for (int i = 1; i < timeStepsNumber; i++)
             {
@@ -229,7 +247,7 @@ namespace FEC
                 }
                 else
                 {
-                    nextSolution = NewtonIterations(hatRVector);
+                    nextSolution = LoadControlledNR(hatRVector);
                 }
                 explicitSolution.Add(i, nextSolution);
                 explicitAcceleration.Add(i, CalculateAccelerations());
