@@ -39,7 +39,7 @@ namespace FEC
             double E = 1.0;
             double A = 1.0;
             double I = 1.0; //inertia
-            string type = "Beam2D";
+            string type = "BeamNL2D";
             Dictionary<int, IElementProperties> elementProperties = new Dictionary<int, IElementProperties>();
             elementProperties[1] = new ElementProperties(E, A, I, type);
             elementProperties[1].Density = 1.0;

@@ -15,6 +15,7 @@ namespace FEC
         public List<int> ElementFreedomList { get; set; }
         public double[] DisplacementVector { get; set; }
         public double[] AccelerationVector { get; set; }
+        private bool ActivateLumbedMassMatrix = true;
 
 
         public BeamNL2D(IElementProperties properties, Dictionary<int, INode> nodes)
@@ -241,14 +242,80 @@ namespace FEC
         }
         #endregion
 
+        public double[,] CreateLumpedMassMatrix() //based on Bathe page 817 (mixed truss and beam elements)
+        {
+            double length = CalculateElementLength();
+
+            double a = Properties.Density * Properties.SectionArea * length / 24.0;
+            double b = Properties.Density * length / 2.0;
+
+            double[,] localMassMatrix = new double[6, 6];
+            localMassMatrix[0, 0] = b;
+            localMassMatrix[1, 1] = a * 12.0;
+            localMassMatrix[2, 2] = a * Math.Pow(length, 2);
+            localMassMatrix[3, 3] = localMassMatrix[0, 0];
+            localMassMatrix[4, 4] = localMassMatrix[1, 1];
+            localMassMatrix[5, 5] = localMassMatrix[2, 2];
+
+            return localMassMatrix;
+        }
+
+        public double[,] CreateConsistentMassMatrix() //based on Chandrupatla page 410
+        {
+            double length = CalculateElementLength();
+
+            double a = Properties.Density * Properties.SectionArea * length / 6.0;
+            double b = Properties.Density * Properties.SectionArea * length / 420.0;
+
+            double[,] localMassMatrix = new double[,]
+            {
+                {2.0*a, 0, 0, a, 0, 0 },
+                {0, 156.0*b, 22.0*Math.Pow(length,2)*b, 0, 54.0*b, -13.0*length*b },
+                {0, 22.0*Math.Pow(length,2)*b, 4.0*Math.Pow(length,2)*b, 0, 13.0*length*b, -3.0*Math.Pow(length,2)*b },
+                {a, 0, 0, 2.0*a, 0, 0 },
+                {0, 54.0*b, 13.0*length*b, 0, 156.0*b, -22.0*length*b },
+                {0, -13.0*length*b, -3.0*Math.Pow(length,2)*b, 0, -22.0*length*b, 4.0*Math.Pow(length,2)*b }
+            };
+            return localMassMatrix;
+        }
+
+        private double[,] CreateLambdaMatrix()
+        {
+            double cosine = CalculateElementCosinus();
+            double sine = CalculateElementSinus();
+            double[,] lambdaMatrix = new[,]
+            { { cosine, sine, 0, 0, 0, 0 },
+            { -sine, cosine, 0, 0, 0, 0 },
+            { 0, 0, 1, 0, 0, 0 },
+            { 0, 0, 0, cosine, sine, 0 },
+            { 0, 0, 0, -sine, cosine, 0 },
+            { 0, 0, 0, 0, 0, 1 }};
+
+            return lambdaMatrix;
+        }
+
         public double[,] CreateMassMatrix()
         {
-            throw new Exception("Mass matrix not implemented");
+            double[,] lambda = CreateLambdaMatrix();
+            double[,] localMassMatrix;
+            if (ActivateLumbedMassMatrix == true)
+            {
+                localMassMatrix = CreateLumpedMassMatrix();
+            }
+            else
+            {
+                localMassMatrix = CreateConsistentMassMatrix();
+            }
+            double[,] globalMassMatrix = MatrixOperations.MatrixProduct
+                (
+                    MatrixOperations.Transpose(lambda), MatrixOperations.MatrixProduct(localMassMatrix, lambda)
+                );
+            return globalMassMatrix;
         }
 
         public double[,] CreateDampingMatrix()
         {
-            throw new Exception("Not implemented");
+            return new double[6, 6];
         }
 
         public double[,] CreateLocalStiffnessMatrix()

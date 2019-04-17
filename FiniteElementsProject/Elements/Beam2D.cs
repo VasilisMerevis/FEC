@@ -223,12 +223,12 @@ namespace FEC
             globalStiffnessMatrix = MatrixOperations.MatrixProduct(transposeLocalStiff, KxL);
             double[] stiffPart = VectorOperations.MatrixVectorProduct(globalStiffnessMatrix, DisplacementVector);
             
-            if (AccelerationVector != null)
-            {
-                double[,] globalMassMatrix = CreateMassMatrix();
-                double[] massPart = VectorOperations.MatrixVectorProduct(globalMassMatrix, VectorOperations.VectorScalarProductNew(AccelerationVector, 1.0));
-                stiffPart = VectorOperations.VectorVectorAddition(stiffPart, massPart);
-            }            
+            //if (AccelerationVector != null)
+            //{
+            //    double[,] globalMassMatrix = CreateMassMatrix();
+            //    double[] massPart = VectorOperations.MatrixVectorProduct(globalMassMatrix, VectorOperations.VectorScalarProductNew(AccelerationVector, 1.0));
+            //    stiffPart = VectorOperations.VectorVectorAddition(stiffPart, massPart);
+            //}            
             return stiffPart;
         }
     }

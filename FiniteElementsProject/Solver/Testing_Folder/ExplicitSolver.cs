@@ -138,46 +138,66 @@ namespace FEC
             return solutionVector;
         }
 
-        private double[] UpdatedF(double[] forceVector)
-        {
+        //private double[] UpdatedF(double[] forceVector)
+        //{
             
 
-            lambda = 1.0 / numberOfLoadSteps;
-            double[] incrementDf = VectorOperations.VectorScalarProductNew(forceVector, lambda);
-            double[] solutionVector = new double[forceVector.Length];
-            double[] incrementalExternalForcesVector = new double[forceVector.Length];
-            double[] tempSolutionVector = new double[solutionVector.Length];
-            double[] deltaU = new double[solutionVector.Length];
-            double[] internalForcesTotalVector;
-            double[] dU;
+        //    lambda = 1.0 / numberOfLoadSteps;
+        //    double[] incrementDf = VectorOperations.VectorScalarProductNew(forceVector, lambda);
+        //    double[] solutionVector = new double[forceVector.Length];
+        //    double[] incrementalExternalForcesVector = new double[forceVector.Length];
+        //    double[] tempSolutionVector = new double[solutionVector.Length];
+        //    double[] deltaU = new double[solutionVector.Length];
+        //    double[] internalForcesTotalVector;
+        //    double[] dU;
 
 
+
+
+
+        //    double[] currentU = explicitSolution.Values.Last();
+        //    Assembler.UpdateDisplacements(currentU);
+        //    internalForcesTotalVector = Assembler.CreateTotalInternalForcesVector();
+        //    double[,] TotalMassMatrix = Assembler.CreateTotalMassMatrix();
+        //    double[] a2_M_ut = VectorOperations.MatrixVectorProduct(
+        //                        MatrixOperations.ScalarMatrixProductNew(a2, TotalMassMatrix), currentU);
+
+        //    double[] a0_M_ut = VectorOperations.MatrixVectorProduct(
+        //                        MatrixOperations.ScalarMatrixProductNew(a0, TotalMassMatrix), currentU);
+
+        //    double[,] hatMMatrix = CalculateHatMMatrix();
+        //    double[] hatM_utprevious = VectorOperations.MatrixVectorProduct(hatMMatrix, )
 
             
-            
+
+        
+        //double[,] hatK = MatrixOperations.MatrixSubtraction(TotalStiffnessMatrix,
+        //                    MatrixOperations.ScalarMatrixProductNew(a2, TotalMassMatrix));
+        //double[] hatCurrentU = VectorOperations.MatrixVectorProduct(hatKMatrix, explicitSolution[i - 1]);
+        //    double[] hatPreviousU = VectorOperations.MatrixVectorProduct(hatMMatrix, explicitSolution[i - 2]);
+
+        //    double[] hatR = VectorOperations.VectorVectorSubtraction(ExternalForcesVector,
+        //                    VectorOperations.VectorVectorAddition(hatCurrentU, hatPreviousU));
+
+
+
+        //    double[,] tangentMatrix = CalculateHatMMatrix();
+        //        dU = LinearSolver.Solve(tangentMatrix, incrementDf);
+        //        solutionVector = VectorOperations.VectorVectorAddition(solutionVector, dU);
+
+        //        Assembler.UpdateDisplacements(solutionVector);
+        //        tangentMatrix = CalculateHatMMatrix();
+        //        internalForcesTotalVector = Assembler.CreateTotalInternalForcesVector();
+
+        //        residual = VectorOperations.VectorVectorSubtraction(internalForcesTotalVector, incrementalExternalForcesVector);
+        //        residualNorm = VectorOperations.VectorNorm2(residual);
+        //        int iteration = 0;
+        //        Array.Clear(deltaU, 0, deltaU.Length);
                 
-                Assembler.UpdateDisplacements(solutionVector);
-
-
-                internalForcesTotalVector = Assembler.CreateTotalInternalForcesVector();
-
-                double[,] tangentMatrix = CalculateHatMMatrix();
-                dU = LinearSolver.Solve(tangentMatrix, incrementDf);
-                solutionVector = VectorOperations.VectorVectorAddition(solutionVector, dU);
-
-                Assembler.UpdateDisplacements(solutionVector);
-                tangentMatrix = CalculateHatMMatrix();
-                internalForcesTotalVector = Assembler.CreateTotalInternalForcesVector();
-
-                residual = VectorOperations.VectorVectorSubtraction(internalForcesTotalVector, incrementalExternalForcesVector);
-                residualNorm = VectorOperations.VectorNorm2(residual);
-                int iteration = 0;
-                Array.Clear(deltaU, 0, deltaU.Length);
-                
             
 
-            return solutionVector;
-        }
+        //    return solutionVector;
+        //}
 
         /// <summary>
         /// Calculates accelerations for time t
@@ -270,6 +290,29 @@ namespace FEC
             return hatR;
         }
 
+        private double[] CalculateHatRVectorNL(int i)
+        {
+
+            Assembler.UpdateDisplacements(explicitSolution[i - 1]);
+
+        double[,] totalMassMatrix = Assembler.CreateTotalMassMatrix();
+        double[,] totalDampingMatrix = Assembler.CreateTotalDampingMatrix();
+        double[,] a2M = MatrixOperations.ScalarMatrixProductNew(a2, totalMassMatrix);
+        double[,] a0M = MatrixOperations.ScalarMatrixProductNew(a0, totalMassMatrix);
+        double[,] a1C = MatrixOperations.ScalarMatrixProductNew(-a1, totalDampingMatrix);
+        double[,] hutM = MatrixOperations.MatrixAddition(a0M, a1C);
+
+            double[] F = Assembler.CreateTotalInternalForcesVector();
+            double[] hatPreviousU = VectorOperations.MatrixVectorProduct(hutM, explicitSolution[i - 2]);
+            double[] a2Mut = VectorOperations.MatrixVectorProduct(a2M, explicitSolution[i - 1]);
+
+
+            double[] hatR1 = VectorOperations.VectorVectorSubtraction(ExternalForcesVector, F);
+            double[] hatR2 = VectorOperations.VectorVectorSubtraction(a2Mut, hatPreviousU);
+            double[] hatRtotal = VectorOperations.VectorVectorAddition(hatR1, hatR2);
+            return hatRtotal;
+        }
+
 
         public void SolveExplicit()
         {
@@ -281,14 +324,17 @@ namespace FEC
             for (int i = 1; i < timeStepsNumber; i++)
             {
                 double time = i * timeStep + InitialValues.InitialTime;
-                double[] hatRVector = CalculateHatRVector(i);
+                
                 if (ActivateNonLinearSolution == false)
                 {
+                    double[] hatRVector = CalculateHatRVector(i);
                     nextSolution = LinearSolver.Solve(hatMassMatrix, hatRVector);
                 }
                 else
                 {
-                    nextSolution = NewtonIterations(hatRVector);
+                    double[] hatRVector = CalculateHatRVectorNL(i);
+                    nextSolution = LinearSolver.Solve(hatMassMatrix, hatRVector);
+                    //nextSolution = NewtonIterations(hatRVector);
                 }
                 explicitSolution.Add(i, nextSolution);
                 explicitAcceleration.Add(i, CalculateAccelerations());
