@@ -67,6 +67,12 @@ namespace FEC
             elementProperties[3] = new ElementProperties(E, A, type);
             elementProperties[4] = new ElementProperties(E, A, type);
             elementProperties[5] = new ElementProperties(E, A, type2);
+
+            elementProperties[1].Density = 1.0;
+            elementProperties[2].Density = 1.0;
+            elementProperties[3].Density = 1.0;
+            elementProperties[4].Density = 1.0;
+            elementProperties[5].Density = 1.0;
             return elementProperties;
         }
 
@@ -81,7 +87,7 @@ namespace FEC
             return assembly;
         }
 
-        public static void RunExample()
+        public static void RunStaticExample()
         {
             IAssembly elementsAssembly = CreateAssembly();
             elementsAssembly.CreateElementsAssembly();
@@ -100,5 +106,31 @@ namespace FEC
             newSolu.PrintSolution();
         }
 
+        public static void RunDynamicExample()
+        {
+            IAssembly elementsAssembly = CreateAssembly();
+            elementsAssembly.CreateElementsAssembly();
+            elementsAssembly.ActivateBoundaryConditions = true;
+
+
+            InitialConditions initialValues = new InitialConditions();
+            initialValues.InitialAccelerationVector = new double[16];
+            initialValues.InitialDisplacementVector = new double[16];
+            //initialValues.InitialDisplacementVector[0] = 0.2146;
+            initialValues.InitialVelocityVector = new double[16];
+            initialValues.InitialTime = 0.0;
+
+            ExplicitSolver newSolver = new ExplicitSolver(1.0, 100);
+            newSolver.Assembler = elementsAssembly;
+
+            newSolver.InitialValues = initialValues;
+            newSolver.ExternalForcesVector = new double[] { 0, 0, 0, 0, 0, -4 * 2200, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            newSolver.LinearSolver = new BiCGSTABSolver();
+            newSolver.ActivateNonLinearSolution = true;
+            newSolver.SolveExplicit();
+            newSolver.PrintExplicitSolution();
+
+            
+        }
     }
 }

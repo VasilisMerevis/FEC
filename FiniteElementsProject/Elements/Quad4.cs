@@ -15,7 +15,7 @@ namespace FEC
         public double[] AccelerationVector { get; set; }
         public double poisson { get; set; }
         private double thickness = 1.0; //To be included in Element Properties
-        private double density = 4000.0; //To be included in Element Properties
+        private double density = 1.0; //To be included in Element Properties
 
         public Quad4(IElementProperties properties, Dictionary<int, INode> nodes)
         {

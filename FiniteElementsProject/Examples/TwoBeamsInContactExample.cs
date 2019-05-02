@@ -47,8 +47,8 @@ namespace FEC
             double E = 200.0e9;
             double A = 0.01;
             double I = 8.333e-6;
-            string type = "Beam2D";
-            string type2 = "ContactNtS2D";
+            string type = "BeamNL2D";
+            string type2 = "ContactNtS2Df";
             Dictionary<int, IElementProperties> elementProperties = new Dictionary<int, IElementProperties>();
             elementProperties[1] = new ElementProperties(E, A, I, type);
             elementProperties[2] = new ElementProperties(E, A, I, type);
@@ -69,7 +69,7 @@ namespace FEC
             return assembly;
         }
 
-        public static void RunExample()
+        public static void RunStaticExample()
         {
             IAssembly elementsAssembly = CreateAssembly();
             elementsAssembly.CreateElementsAssembly();
@@ -78,7 +78,7 @@ namespace FEC
 
             ISolver newSolu = new StaticSolver();
             newSolu.LinearScheme = new BiCGSTABSolver();
-            newSolu.NonLinearScheme = new LoadControlledNewtonRaphson();
+            newSolu.NonLinearScheme = new NewtonIterations();
             newSolu.ActivateNonLinearSolver = true;
             newSolu.NonLinearScheme.numberOfLoadSteps = 15;
 
@@ -87,6 +87,8 @@ namespace FEC
             newSolu.Solve(externalForces);
             newSolu.PrintSolution();
         }
+
+        
 
     }
 }

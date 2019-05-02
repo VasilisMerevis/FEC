@@ -23,18 +23,19 @@ namespace FEC
             //CantileverInContact.RunStaticExample();
             //CantileverInContact.RunDynamicExample();
             //Console.WriteLine();
-            //TwoBeamsInContactExample.RunExample();
+            //TwoBeamsInContactExample.RunStaticExample();
             //Console.WriteLine();
             //TwoQuadsExample.RunExample();
             //Console.WriteLine();
-            //TwoBeamsInContactQuadsExample.RunExample();
+            TwoBeamsInContactQuadsExample.RunDynamicExample();
+            //Console.WriteLine();
             //TwoBeamsInFrContactQuadsExample.RunExample();
             //CantileverQuadsExample.RunExample();
             //CentralDifferencesTest.SolveExample();
             //DynamicExample.RunExample();
             //TwoQuadsDynamicExample.RunExample();
             //ExplicitLinearExample.SolveExample();
-            BeamDynamicExample.RunExample();
+            //BeamDynamicExample.RunExample();
 
             Console.ReadLine();
 
