@@ -25,9 +25,9 @@ namespace FEC
             //Console.WriteLine();
             //TwoBeamsInContactExample.RunStaticExample();
             //Console.WriteLine();
-            //TwoQuadsExample.RunExample();
+            TwoQuadsExample.RunDynamicExample();
             //Console.WriteLine();
-            TwoBeamsInContactQuadsExample.RunDynamicExample();
+            //TwoBeamsInContactQuadsExample.RunDynamicExample();
             //Console.WriteLine();
             //TwoBeamsInFrContactQuadsExample.RunExample();
             //CantileverQuadsExample.RunExample();

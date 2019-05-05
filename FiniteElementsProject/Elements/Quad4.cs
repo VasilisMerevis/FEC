@@ -14,8 +14,8 @@ namespace FEC
         public double[] DisplacementVector { get; set; }
         public double[] AccelerationVector { get; set; }
         public double poisson { get; set; }
-        private double thickness = 1.0; //To be included in Element Properties
-        private double density = 1.0; //To be included in Element Properties
+        //private double thickness = 1.0; //To be included in Element Properties
+        //private double density = 1.0; //To be included in Element Properties
 
         public Quad4(IElementProperties properties, Dictionary<int, INode> nodes)
         {
@@ -226,8 +226,20 @@ namespace FEC
 
         public double[,] CreateMassMatrix()
         {
-            double[,] M = new double[8, 8];
+            //double[,] M = new double[8, 8];
 
+            
+
+            double[,] tempM = MatrixOperations.CreateDiagonalMatrix(8, 1.0);
+            double length = 2.0;
+            double scalar = Properties.Density * Properties.Thickness * length * length / 4.0;
+            double[,] M = MatrixOperations.ScalarMatrixProductNew(scalar, tempM);
+
+            double waveSpeed = Math.Sqrt(Properties.YoungMod / Properties.Density);
+            double deltatCritical = length * Math.Sqrt(1.0 - 0.33) / waveSpeed;
+
+
+            //--------------------------------------------------------------
             //for (int i = 0; i < 2; i++)
             //{
             //    for (int j = 0; j < 2; j++)
@@ -239,35 +251,37 @@ namespace FEC
             //        double[,] invJ = CalculateInverseJacobian(J).Item1;
             //        double detJ = CalculateInverseJacobian(J).Item2;
             //        double[,] Nmatrix = CalculateShapeFunctionMatrix(gP[i], gP[j]);
-            //        M = MatrixOperations.MatrixAddition(M, MatrixOperations.ScalarMatrixProductNew(density * thickness * detJ * gW[i] * gW[j],
+            //        M = MatrixOperations.MatrixAddition(M, MatrixOperations.ScalarMatrixProductNew(Properties.Density * Properties.Thickness * detJ * gW[i] * gW[j],
             //            MatrixOperations.MatrixProduct(MatrixOperations.Transpose(Nmatrix), Nmatrix)));
             //    }
             //}
 
-            for (int i = 0; i < 8; i++)
-            {
-                M[i,i] = 4.0;
-            }
+            //--------------------------------------------------------
 
-            for (int i = 0; i < 6; i++)
-            {
-                M[i, i + 2] = 2.0;
-                M[i + 2, i] = 2.0;
-            }
+            //for (int i = 0; i < 8; i++)
+            //{
+            //    M[i, i] = 4.0;
+            //}
 
-            for (int i = 0; i < 4; i++)
-            {
-                M[i, i + 4] = 1.0;
-                M[i + 4, i] = 1.0;
-            }
+            //for (int i = 0; i < 6; i++)
+            //{
+            //    M[i, i + 2] = 2.0;
+            //    M[i + 2, i] = 2.0;
+            //}
 
-            for (int i = 0; i < 2; i++)
-            {
-                M[i, i + 6] = 2.0;
-                M[i + 6, i] = 2.0;
-            }
+            //for (int i = 0; i < 4; i++)
+            //{
+            //    M[i, i + 4] = 1.0;
+            //    M[i + 4, i] = 1.0;
+            //}
 
-            M = MatrixOperations.ScalarMatrixProductNew(0.67 * 0.8 * density * thickness / 32, M);
+            //for (int i = 0; i < 2; i++)
+            //{
+            //    M[i, i + 6] = 2.0;
+            //    M[i + 6, i] = 2.0;
+            //}
+
+            //M = MatrixOperations.ScalarMatrixProductNew(0.67 * 0.8 * Properties.Density * Properties.Thickness / 32, M);
             //MatrixOperations.PrintMatrix(M);
 
             return M;
@@ -298,7 +312,7 @@ namespace FEC
                     double[] strainVector = CalculateStrainsVector(B);
                     double[] stressVector = CalculateStressVector(E,strainVector);
                     F = VectorOperations.VectorVectorAddition(F, VectorOperations.VectorScalarProductNew(
-                        VectorOperations.MatrixVectorProduct(MatrixOperations.Transpose(B), stressVector),detJ * gW[0] * gW[1]));
+                        VectorOperations.MatrixVectorProduct(MatrixOperations.Transpose(B), stressVector), detJ * gW[0] * gW[1]));
                 }
             }
             return F;

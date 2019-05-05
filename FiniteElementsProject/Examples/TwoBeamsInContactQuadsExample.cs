@@ -95,10 +95,10 @@ namespace FEC
             double[,] globalStiffnessMatrix = elementsAssembly.CreateTotalStiffnessMatrix();
 
             ISolver newSolu = new StaticSolver();
-            newSolu.LinearScheme = new BiCGSTABSolver();
+            newSolu.LinearScheme = new PCGSolver();
             newSolu.NonLinearScheme = new LoadControlledNewtonRaphson();
             newSolu.ActivateNonLinearSolver = true;
-            newSolu.NonLinearScheme.numberOfLoadSteps = 15;
+            newSolu.NonLinearScheme.numberOfLoadSteps = 30;
 
             double[] externalForces = new double[] { 0, 0, 0, 0, 0, -4*22000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
             newSolu.AssemblyData = elementsAssembly;
@@ -124,8 +124,8 @@ namespace FEC
             newSolver.Assembler = elementsAssembly;
 
             newSolver.InitialValues = initialValues;
-            newSolver.ExternalForcesVector = new double[] { 0, 0, 0, 0, 0, -4 * 2200, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-            newSolver.LinearSolver = new BiCGSTABSolver();
+            newSolver.ExternalForcesVector = new double[] { 0, 0, 0, 0, 0, -4 * 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            newSolver.LinearSolver = new PCGSolver();
             newSolver.ActivateNonLinearSolution = true;
             newSolver.SolveExplicit();
             newSolver.PrintExplicitSolution();

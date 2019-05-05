@@ -12,5 +12,6 @@ namespace FEC
         double MomentOfInertia { get; set; }
         string ElementType { get; set; }
         double Density { get; set; }
+        double Thickness { get; set; }
     }
 }

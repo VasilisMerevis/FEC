@@ -12,6 +12,7 @@ namespace FEC
         public double MomentOfInertia { get; set; }
         public string ElementType { get; set; }
         public double Density { get; set; }
+        public double Thickness { get; set; }
 
         public ElementProperties(double youngMod, double sectionArea, string elementType)
         {

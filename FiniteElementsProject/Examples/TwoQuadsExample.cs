@@ -43,13 +43,17 @@ namespace FEC
         private static Dictionary<int, IElementProperties> CreateElementProperties()
         {
             double E = 200.0e9;
-            double A = 0.01;
+            double A = 1.0;
             string type = "Quad4";
             
             Dictionary<int, IElementProperties> elementProperties = new Dictionary<int, IElementProperties>();
             elementProperties[1] = new ElementProperties(E, A, type);
             elementProperties[2] = new ElementProperties(E, A, type);
-            
+            elementProperties[1].Density = 8000.0;
+            elementProperties[2].Density = 8000.0;
+            elementProperties[1].Thickness = 0.1;
+            elementProperties[2].Thickness = 0.1;
+
             return elementProperties;
         }
 
@@ -64,7 +68,7 @@ namespace FEC
             return assembly;
         }
 
-        public static void RunExample()
+        public static void RunStaticExample()
         {
             IAssembly elementsAssembly = CreateAssembly();
             elementsAssembly.CreateElementsAssembly();
@@ -74,13 +78,39 @@ namespace FEC
             ISolver newSolu = new StaticSolver();
             newSolu.LinearScheme = new PCGSolver();
             newSolu.NonLinearScheme = new LoadControlledNewtonRaphson();
-            newSolu.ActivateNonLinearSolver = true;
+            newSolu.ActivateNonLinearSolver = false;
             newSolu.NonLinearScheme.numberOfLoadSteps = 10;
 
             double[] externalForces = new double[] { 0, 0, 1e9, -1e9, 0, -1e9, 0, 0 };
             newSolu.AssemblyData = elementsAssembly;
             newSolu.Solve(externalForces);
             newSolu.PrintSolution();
+        }
+
+        public static void RunDynamicExample()
+        {
+            IAssembly elementsAssembly = CreateAssembly();
+            elementsAssembly.CreateElementsAssembly();
+            elementsAssembly.ActivateBoundaryConditions = true;
+
+
+
+            InitialConditions initialValues = new InitialConditions();
+            initialValues.InitialAccelerationVector = new double[8];
+            initialValues.InitialDisplacementVector = new double[8];
+            initialValues.InitialDisplacementVector[7] = -0.02146;
+            initialValues.InitialVelocityVector = new double[8];
+            initialValues.InitialTime = 0.0;
+
+            ExplicitSolver newSolver = new ExplicitSolver(1.0, 10000);
+            newSolver.Assembler = elementsAssembly;
+
+            newSolver.InitialValues = initialValues;
+            newSolver.ExternalForcesVector = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; //{ 0, 0, 1e5, -1e5, 0, -1e5, 0, 0 };
+            newSolver.LinearSolver = new CholeskyFactorization();
+            newSolver.ActivateNonLinearSolution = false;
+            newSolver.SolveExplicit();
+            newSolver.PrintExplicitSolution();
         }
 
     }
