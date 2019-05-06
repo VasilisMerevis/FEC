@@ -231,8 +231,8 @@ namespace FEC
             
 
             double[,] tempM = MatrixOperations.CreateDiagonalMatrix(8, 1.0);
-            double length = 2.0;
-            double scalar = Properties.Density * Properties.Thickness * length * length / 4.0;
+            double length = 0.3;
+            double scalar = Properties.Density * Properties.Thickness * length * (length/3.0) / 4.0;
             double[,] M = MatrixOperations.ScalarMatrixProductNew(scalar, tempM);
 
             double waveSpeed = Math.Sqrt(Properties.YoungMod / Properties.Density);

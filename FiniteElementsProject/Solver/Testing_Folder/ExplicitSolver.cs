@@ -329,12 +329,16 @@ namespace FEC
                 {
                     double[] hatRVector = CalculateHatRVector(i);
                     nextSolution = LinearSolver.Solve(hatMassMatrix, hatRVector);
+                    Console.WriteLine("Solution for Load Step {0} is:", i);
+                    VectorOperations.PrintVector(nextSolution);
                 }
                 else
                 {
                     double[] hatRVector = CalculateHatRVectorNL(i);
                     nextSolution = LinearSolver.Solve(hatMassMatrix, hatRVector);
                     //nextSolution = NewtonIterations(hatRVector);
+                    Console.WriteLine("Solution for Load Step {0} is:", i);
+                    VectorOperations.PrintVector(nextSolution);
                 }
                 explicitSolution.Add(i, nextSolution);
                 explicitAcceleration.Add(i, CalculateAccelerations());

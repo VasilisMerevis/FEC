@@ -68,11 +68,12 @@ namespace FEC
             elementProperties[4] = new ElementProperties(E, A, type);
             elementProperties[5] = new ElementProperties(E, A, type2);
 
-            elementProperties[1].Density = 1.0;
-            elementProperties[2].Density = 1.0;
-            elementProperties[3].Density = 1.0;
-            elementProperties[4].Density = 1.0;
-            elementProperties[5].Density = 1.0;
+            for (int i = 1; i <= elementProperties.Count; i++)
+            {
+                elementProperties[i].Density = 80000.0;
+                elementProperties[i].Thickness = 0.01;
+            }
+
             return elementProperties;
         }
 
@@ -116,16 +117,16 @@ namespace FEC
             InitialConditions initialValues = new InitialConditions();
             initialValues.InitialAccelerationVector = new double[16];
             initialValues.InitialDisplacementVector = new double[16];
-            //initialValues.InitialDisplacementVector[0] = 0.2146;
+            initialValues.InitialDisplacementVector[5] = 0.1146;
             initialValues.InitialVelocityVector = new double[16];
             initialValues.InitialTime = 0.0;
 
-            ExplicitSolver newSolver = new ExplicitSolver(1.0, 100);
+            ExplicitSolver newSolver = new ExplicitSolver(0.3, 100000);
             newSolver.Assembler = elementsAssembly;
 
             newSolver.InitialValues = initialValues;
-            newSolver.ExternalForcesVector = new double[] { 0, 0, 0, 0, 0, -4 * 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-            newSolver.LinearSolver = new PCGSolver();
+            newSolver.ExternalForcesVector = new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };//{ 0, 0, 0, 0, 0, -4 * 22000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            newSolver.LinearSolver = new CholeskyFactorization();
             newSolver.ActivateNonLinearSolution = true;
             newSolver.SolveExplicit();
             newSolver.PrintExplicitSolution();
