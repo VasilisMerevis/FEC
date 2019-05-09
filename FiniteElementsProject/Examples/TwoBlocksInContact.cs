@@ -48,6 +48,19 @@ namespace FEC
         private Dictionary<int, Dictionary<int, int>> CreateConnectivity()
         {
             Dictionary<int, Dictionary<int, int>> connectivity = new Dictionary<int, Dictionary<int, int>>();
+
+            for (int i = 1; i < nodesPerSide; i++)
+            {
+                for (int j = 1; j < nodesPerSide; j++)
+                {
+                    int localNode1 = (i - 1) * nodesPerSide + j;
+                    int localNode2 = (i - 1) * nodesPerSide + j + 1;
+                    int localNode3 = i * nodesPerSide + j;
+                    int localNode4 = i * nodesPerSide + j + 1;
+                    connectivity[i] = new Dictionary<int, int>() { { 1, localNode1 }, { 2, localNode2 }, { 3, localNode3 }, { 4, localNode4 } };
+                }
+            }
+            
             for (int i = 1; i <= ElementsNumber; i++)
             {
                 connectivity[i] = new Dictionary<int, int>() { { 1, i }, { 2, i+1 }, { 3, 3 }, { 4, 6 } };
