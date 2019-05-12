@@ -36,7 +36,7 @@ namespace FEC
             //TwoQuadsDynamicExample.RunExample();
             //ExplicitLinearExample.SolveExample();
             //BeamDynamicExample.RunExample();
-
+            
             Console.ReadLine();
 
             //NonSymmetricSystem.Solve();

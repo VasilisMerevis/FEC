@@ -11,13 +11,14 @@ namespace FEC
         double ElementSize { get; set; } = 0.1;
         int ElementsNumber { get; set; }
         double Gap { get; set; } = 0.01;
-        int nodesPerSide;
+        private int nodesPerSide;
+        private Dictionary<int, INode> nodes;
 
         private Dictionary<int, INode> CreateNodes()
         {
             nodesPerSide = (int)(BlockLength / ElementSize + 1.0);
             ElementsNumber = (int)Math.Pow(BlockLength / ElementSize, 2.0);
-            Dictionary<int, INode> nodes = new Dictionary<int, INode>();
+            nodes = new Dictionary<int, INode>();
             
             int nodeNumber = 0;
             for (int j = 0; j < nodesPerSide; j++)
@@ -41,7 +42,6 @@ namespace FEC
                     nodes[nodeNumber] = new Node(x, y);
                 }
             }
-
             return nodes;
         }
 
@@ -60,47 +60,36 @@ namespace FEC
                     connectivity[i] = new Dictionary<int, int>() { { 1, localNode1 }, { 2, localNode2 }, { 3, localNode3 }, { 4, localNode4 } };
                 }
             }
-            
-            for (int i = 1; i <= ElementsNumber; i++)
-            {
-                connectivity[i] = new Dictionary<int, int>() { { 1, i }, { 2, i+1 }, { 3, 3 }, { 4, 6 } };
-            }
-            connectivity[1] = new Dictionary<int, int>() { { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, 6 } };
-            connectivity[2] = new Dictionary<int, int>() { { 1, 6 }, { 2, 3 }, { 3, 4 }, { 4, 5 } };
-
             return connectivity;
         }
 
-        private static Dictionary<int, bool[]> CreateNodeFAT()
+        private Dictionary<int, bool[]> CreateNodeFAT()
         {
             Dictionary<int, bool[]> nodeFAT = new Dictionary<int, bool[]>();
-            nodeFAT[1] = new bool[] { true, true, false, false, false, false };
-            nodeFAT[2] = new bool[] { true, true, false, false, false, false };
-            nodeFAT[3] = new bool[] { true, true, false, false, false, false };
-            nodeFAT[4] = new bool[] { true, true, false, false, false, false };
-            nodeFAT[5] = new bool[] { true, true, false, false, false, false };
-            nodeFAT[6] = new bool[] { true, true, false, false, false, false };
+            for (int i = 1; i <= nodes.Count; i++)
+            {
+                nodeFAT[i] = new bool[] { true, true, false, false, false, false };
+            }
             return nodeFAT;
         }
 
-        private static Dictionary<int, IElementProperties> CreateElementProperties()
+        private Dictionary<int, IElementProperties> CreateElementProperties()
         {
             double E = 200.0e9;
             double A = 1.0;
             string type = "Quad4";
 
             Dictionary<int, IElementProperties> elementProperties = new Dictionary<int, IElementProperties>();
-            elementProperties[1] = new ElementProperties(E, A, type);
-            elementProperties[2] = new ElementProperties(E, A, type);
-            elementProperties[1].Density = 8000.0;
-            elementProperties[2].Density = 8000.0;
-            elementProperties[1].Thickness = 0.1;
-            elementProperties[2].Thickness = 0.1;
-
+            for (int i = 1; i <= ElementsNumber; i++)
+            {
+                elementProperties[i] = new ElementProperties(E, A, type);
+                elementProperties[i].Density = 8000.0;
+                elementProperties[i].Thickness = 0.1;
+            }
             return elementProperties;
         }
 
-        private static IAssembly CreateAssembly()
+        private IAssembly CreateAssembly()
         {
             IAssembly assembly = new Assembly();
             assembly.Nodes = CreateNodes();
@@ -111,7 +100,7 @@ namespace FEC
             return assembly;
         }
 
-        public static void RunStaticExample()
+        public void RunStaticExample()
         {
             IAssembly elementsAssembly = CreateAssembly();
             elementsAssembly.CreateElementsAssembly();
@@ -130,7 +119,7 @@ namespace FEC
             newSolu.PrintSolution();
         }
 
-        public static void RunDynamicExample()
+        public void RunDynamicExample()
         {
             IAssembly elementsAssembly = CreateAssembly();
             elementsAssembly.CreateElementsAssembly();
