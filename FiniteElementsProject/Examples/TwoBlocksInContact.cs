@@ -17,7 +17,7 @@ namespace FEC
         private Dictionary<int, INode> CreateNodes()
         {
             nodesPerSide = (int)(BlockLength / ElementSize + 1.0);
-            ElementsNumber = (int)Math.Pow(BlockLength / ElementSize, 2.0);
+            //ElementsNumber = (int)Math.Pow(BlockLength / ElementSize, 2.0);
             nodes = new Dictionary<int, INode>();
             
             int nodeNumber = 0;
@@ -48,7 +48,7 @@ namespace FEC
         private Dictionary<int, Dictionary<int, int>> CreateConnectivity()
         {
             Dictionary<int, Dictionary<int, int>> connectivity = new Dictionary<int, Dictionary<int, int>>();
-
+            int element = 1;
             for (int i = 1; i < nodesPerSide; i++)
             {
                 for (int j = 1; j < nodesPerSide; j++)
@@ -57,9 +57,32 @@ namespace FEC
                     int localNode2 = (i - 1) * nodesPerSide + j + 1;
                     int localNode3 = i * nodesPerSide + j;
                     int localNode4 = i * nodesPerSide + j + 1;
-                    connectivity[i] = new Dictionary<int, int>() { { 1, localNode1 }, { 2, localNode2 }, { 3, localNode3 }, { 4, localNode4 } };
+                    connectivity[element] = new Dictionary<int, int>() { { 1, localNode1 }, { 2, localNode2 }, { 3, localNode3 }, { 4, localNode4 } };
+                    element = element + 1;
                 }
             }
+            int firstBodyTotalNodes = nodesPerSide * nodesPerSide;
+            for (int i = 1; i < nodesPerSide; i++)
+            {
+                for (int j = 1; j < nodesPerSide; j++)
+                {
+                    int localNode1 = (i - 1) * nodesPerSide + j + firstBodyTotalNodes;
+                    int localNode2 = (i - 1) * nodesPerSide + j + 1 + firstBodyTotalNodes;
+                    int localNode3 = i * nodesPerSide + j + firstBodyTotalNodes;
+                    int localNode4 = i * nodesPerSide + j + 1 + firstBodyTotalNodes;
+                    connectivity[element] = new Dictionary<int, int>() { { 1, localNode1 }, { 2, localNode2 }, { 3, localNode3 }, { 4, localNode4 } };
+                    element = element + 1;
+                }
+            }
+
+            for (int i = 1; i <= nodesPerSide; i++)
+            {
+                int localNode1 = i + firstBodyTotalNodes;
+                int localNode2 = i + firstBodyTotalNodes + nodesPerSide;
+                connectivity[element] = new Dictionary<int, int>() { { 1, localNode1 }, { 2, localNode2 } };
+                element = element + 1;
+            }
+            ElementsNumber = connectivity.Count;
             return connectivity;
         }
 
@@ -78,13 +101,18 @@ namespace FEC
             double E = 200.0e9;
             double A = 1.0;
             string type = "Quad4";
+            string type2 = "ContactNtN2D";
 
             Dictionary<int, IElementProperties> elementProperties = new Dictionary<int, IElementProperties>();
-            for (int i = 1; i <= ElementsNumber; i++)
+            for (int i = 1; i <= ElementsNumber-11; i++)
             {
                 elementProperties[i] = new ElementProperties(E, A, type);
                 elementProperties[i].Density = 8000.0;
                 elementProperties[i].Thickness = 0.1;
+            }
+            for (int i = 201; i <= 211; i++)
+            {
+                elementProperties[i] = new ElementProperties(E, A, type2);
             }
             return elementProperties;
         }
@@ -96,7 +124,12 @@ namespace FEC
             assembly.ElementsConnectivity = CreateConnectivity();
             assembly.ElementsProperties = CreateElementProperties();
             assembly.NodeFreedomAllocationList = CreateNodeFAT();
-            assembly.BoundedDOFsVector = new int[] { 1, 2, 3, 4 };
+
+            assembly.BoundedDOFsVector = new int[22];
+            for (int i = 1; i <= nodesPerSide*2; i++)
+            {
+                assembly.BoundedDOFsVector[i-1] = i;
+            }
             return assembly;
         }
 
@@ -105,15 +138,19 @@ namespace FEC
             IAssembly elementsAssembly = CreateAssembly();
             elementsAssembly.CreateElementsAssembly();
             elementsAssembly.ActivateBoundaryConditions = true;
-            double[,] globalStiffnessMatrix = elementsAssembly.CreateTotalStiffnessMatrix();
+            //double[,] globalStiffnessMatrix = elementsAssembly.CreateTotalStiffnessMatrix();
 
             ISolver newSolu = new StaticSolver();
             newSolu.LinearScheme = new PCGSolver();
             newSolu.NonLinearScheme = new LoadControlledNewtonRaphson();
-            newSolu.ActivateNonLinearSolver = false;
+            newSolu.ActivateNonLinearSolver = true;
             newSolu.NonLinearScheme.numberOfLoadSteps = 10;
 
-            double[] externalForces = new double[] { 0, 0, 1e9, -1e9, 0, -1e9, 0, 0 };
+            double[] externalForces = new double[462];
+            for (int i = 441; i <= 462; i+=2)
+            {
+                externalForces[i] = -1.0e9;
+            }
             newSolu.AssemblyData = elementsAssembly;
             newSolu.Solve(externalForces);
             newSolu.PrintSolution();
