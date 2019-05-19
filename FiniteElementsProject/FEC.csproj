@@ -44,6 +44,7 @@
     <Compile Include="Examples\DynamicExample.cs" />
     <Compile Include="Examples\ExplicitLinearExample.cs" />
     <Compile Include="Examples\TwoBlocksInContact.cs" />
+    <Compile Include="Examples\TwoQuadsInContactNewExample.cs" />
     <Compile Include="Solver\Dynamic.cs" />
     <Compile Include="Elements\Bar2D.cs" />
     <Compile Include="Elements\Beam2D.cs" />
