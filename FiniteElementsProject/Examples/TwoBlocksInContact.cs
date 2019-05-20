@@ -77,8 +77,8 @@ namespace FEC
 
             for (int i = 1; i <= nodesPerSide; i++)
             {
-                int localNode1 = i + firstBodyTotalNodes;
-                int localNode2 = i + firstBodyTotalNodes + nodesPerSide;
+                int localNode1 = i + firstBodyTotalNodes - nodesPerSide;
+                int localNode2 = i + firstBodyTotalNodes;
                 connectivity[element] = new Dictionary<int, int>() { { 1, localNode1 }, { 2, localNode2 } };
                 element = element + 1;
             }
@@ -149,7 +149,7 @@ namespace FEC
             double[] externalForces = new double[462];
             for (int i = 441; i <= 462; i+=2)
             {
-                externalForces[i] = -1.0e9;
+                externalForces[i] = -50000.0;
             }
             newSolu.AssemblyData = elementsAssembly;
             newSolu.Solve(externalForces);
@@ -165,19 +165,23 @@ namespace FEC
 
 
             InitialConditions initialValues = new InitialConditions();
-            initialValues.InitialAccelerationVector = new double[8];
-            initialValues.InitialDisplacementVector = new double[8];
-            initialValues.InitialDisplacementVector[7] = -0.02146;
-            initialValues.InitialVelocityVector = new double[8];
+            initialValues.InitialAccelerationVector = new double[462];
+            initialValues.InitialDisplacementVector = new double[462];
+            //initialValues.InitialDisplacementVector[7] = -0.02146;
+            initialValues.InitialVelocityVector = new double[462];
             initialValues.InitialTime = 0.0;
 
-            ExplicitSolver newSolver = new ExplicitSolver(1.0, 10000);
+            ExplicitSolver newSolver = new ExplicitSolver(1.0, 1000000);
             newSolver.Assembler = elementsAssembly;
 
             newSolver.InitialValues = initialValues;
-            newSolver.ExternalForcesVector = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; //{ 0, 0, 1e5, -1e5, 0, -1e5, 0, 0 };
+            newSolver.ExternalForcesVector = new double[462];
+            for (int i = 441; i <= 462; i += 2)
+            {
+                newSolver.ExternalForcesVector[i] = -50000.0;
+            }
             newSolver.LinearSolver = new CholeskyFactorization();
-            newSolver.ActivateNonLinearSolution = false;
+            newSolver.ActivateNonLinearSolution = true;
             newSolver.SolveExplicit();
             newSolver.PrintExplicitSolution();
         }
