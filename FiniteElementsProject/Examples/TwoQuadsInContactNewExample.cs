@@ -112,7 +112,7 @@ namespace FEC
             initialValues.InitialVelocityVector = new double[6];
             initialValues.InitialTime = 0.0;
 
-            ExplicitSolver newSolver = new ExplicitSolver(1.0, 10000000);
+            ExplicitSolver newSolver = new ExplicitSolver(1.0, 100000);
             newSolver.Assembler = elementsAssembly;
 
             newSolver.InitialValues = initialValues;

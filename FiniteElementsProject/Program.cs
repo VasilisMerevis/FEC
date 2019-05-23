@@ -36,10 +36,11 @@ namespace FEC
             //TwoQuadsDynamicExample.RunExample();
             //ExplicitLinearExample.SolveExample();
             //BeamDynamicExample.RunExample();
-            //TwoQuadsInContactNewExample.RunDynamicExample();
+            TwoQuadsInContactNewExample.RunDynamicExample();
 
-            var twoBlocks = new TwoBlocksInContact();
-            twoBlocks.RunDynamicExample();
+            //var twoBlocks = new TwoBlocksInContact();
+            //twoBlocks.RunDynamicExample();
+            
             Console.ReadLine();
 
             //NonSymmetricSystem.Solve();

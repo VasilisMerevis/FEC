@@ -343,6 +343,7 @@ namespace FEC
                 explicitSolution.Add(i, nextSolution);
                 explicitAcceleration.Add(i, CalculateAccelerations());
             }
+            ExportToFile.ExportExplicitResults(explicitSolution, 1, 5000);
         }
 
         public void PrintExplicitSolution()
