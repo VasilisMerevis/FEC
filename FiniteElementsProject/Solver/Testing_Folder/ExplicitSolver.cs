@@ -25,6 +25,7 @@ namespace FEC
         public double[,] CustomStiffnessMatrix { get; set; }
         public double[,] CustomMassMatrix { get; set; }
         public double[,] CustomDampingMatrix { get; set; }
+        private Dictionary<int, double> TimeAtEachStep { get; set; }
 
         public ExplicitSolver(double totalTime, int timeStepsNumber)
         {
@@ -35,6 +36,7 @@ namespace FEC
             a1 = 1.0 / (2.0 * timeStep);
             a2 = 2.0 * a0;
             a3 = 1.0 / a2;
+            TimeAtEachStep = new Dictionary<int, double>();
         }
 
         private double[] LoadControlledNR(double[] forceVector)
@@ -320,6 +322,8 @@ namespace FEC
             explicitSolution.Add(-1, CalculatePreviousDisplacementVector());
             explicitSolution.Add(0, InitialValues.InitialDisplacementVector);
             explicitAcceleration.Add(0, CalculateInitialAccelerations());
+            TimeAtEachStep.Add(-1, -1 * timeStep + InitialValues.InitialTime);
+            TimeAtEachStep.Add(0, 0.0);
             double[] nextSolution;
             for (int i = 1; i < timeStepsNumber; i++)
             {
@@ -342,8 +346,9 @@ namespace FEC
                 }
                 explicitSolution.Add(i, nextSolution);
                 explicitAcceleration.Add(i, CalculateAccelerations());
+                TimeAtEachStep.Add(i, time);
             }
-            ExportToFile.ExportExplicitResults(explicitSolution, 1, 5000);
+            ExportToFile.ExportExplicitResults(explicitSolution, TimeAtEachStep, 1, 5000);
         }
 
         public void PrintExplicitSolution()
