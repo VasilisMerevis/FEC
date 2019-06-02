@@ -20,6 +20,7 @@ namespace FEC
         private double timeStep;
         private double a0, a1, a2, a3;
         private Dictionary<int, double[]> explicitSolution = new Dictionary<int, double[]>();
+        private Dictionary<int, double[]> explicitVelocity = new Dictionary<int, double[]>();
         private Dictionary<int, double[]> explicitAcceleration = new Dictionary<int, double[]>();
         public bool ActivateNonLinearSolution { get; set; }
         public double[,] CustomStiffnessMatrix { get; set; }
@@ -219,6 +220,7 @@ namespace FEC
 
         private double[] CalculateInitialAccelerations() //Bathe page 771
         {
+            if (CustomStiffnessMatrix != null) return InitialValues.InitialAccelerationVector;
             int step = explicitSolution.Count - 2;
             Assembler.UpdateDisplacements(explicitSolution[step]);
             double[,] stiffness = Assembler.CreateTotalStiffnessMatrix();
@@ -348,7 +350,7 @@ namespace FEC
                 explicitAcceleration.Add(i, CalculateAccelerations());
                 TimeAtEachStep.Add(i, time);
             }
-            ExportToFile.ExportExplicitResults(explicitSolution, TimeAtEachStep, 1, 5000);
+            ExportToFile.ExportExplicitResults(explicitSolution, TimeAtEachStep, 1, 1);
         }
 
         public void PrintExplicitSolution()
@@ -361,5 +363,166 @@ namespace FEC
                 VectorOperations.PrintVector(solutionInStep);
             }
         }
+
+        #region Newmark_Method
+        private List<double> CalculateIntegrationConstantsNewmark()
+        {
+            double a = 0.25;
+            double delta = 0.5;
+            List<double> aConst = new List<double>();
+            //{
+            //    [0] = 1.0 / (a * Math.Pow(timeStep, 2.0)),
+            //    [1] = delta / (a * timeStep),
+            //    [2] = 1.0 / (a * timeStep),
+            //    [3] = (1.0 / (2.0 * a)) - 1.0,
+            //    [4] = (delta / a) - 1.0,
+            //    [5] = (timeStep / 2.0) * ((delta / a) - 2.0),
+            //    [6] = timeStep * (1.0 - delta),
+            //    [7] = delta * timeStep
+            //};
+            aConst.Add(1.0 / (a * Math.Pow(timeStep, 2.0)));
+            aConst.Add(delta / (a * timeStep));
+            aConst.Add(1.0 / (a * timeStep));
+            aConst.Add((1.0 / (2.0 * a)) - 1.0);
+            aConst.Add((delta / a) - 1.0);
+            aConst.Add((timeStep / 2.0) * ((delta / a) - 2.0));
+            aConst.Add(timeStep * (1.0 - delta));
+            aConst.Add(delta * timeStep);
+            return aConst;
+        }
+
+        private double[,] CalculateHatKMatrixNewmark(List<double> aConstants)
+        {
+            double[,] TotalMassMatrix;
+            double[,] TotalDampingMatrix;
+            double[,] TotalStiffnessMatrix;
+            if (CustomMassMatrix != null)
+            {
+                TotalMassMatrix = CustomMassMatrix;
+                TotalDampingMatrix = CustomDampingMatrix;
+                TotalStiffnessMatrix = CustomStiffnessMatrix;
+            }
+            else
+            {
+                TotalMassMatrix = Assembler.CreateTotalMassMatrix();
+                TotalDampingMatrix = Assembler.CreateTotalDampingMatrix();
+                TotalStiffnessMatrix = Assembler.CreateTotalStiffnessMatrix();
+            }
+            double[,] a0M = MatrixOperations.ScalarMatrixProductNew(aConstants[0], TotalMassMatrix);
+            double[,] a1C = MatrixOperations.ScalarMatrixProductNew(aConstants[1], TotalDampingMatrix);
+            double[,] hutK = MatrixOperations.MatrixAddition(TotalStiffnessMatrix,
+                                MatrixOperations.MatrixAddition(a0M, a1C));
+            return hutK;
+        }
+
+        private double[] CalculateHatRVectorNewmark(int i, List<double> aConstants)
+        {
+            double[,] TotalMassMatrix;
+            double[,] TotalDampingMatrix;
+            double[,] TotalStiffnessMatrix;
+            if (CustomMassMatrix != null)
+            {
+                TotalMassMatrix = CustomMassMatrix;
+                TotalDampingMatrix = CustomDampingMatrix;
+                TotalStiffnessMatrix = CustomStiffnessMatrix;
+            }
+            else
+            {
+                TotalMassMatrix = Assembler.CreateTotalMassMatrix();
+                TotalDampingMatrix = Assembler.CreateTotalDampingMatrix();
+                TotalStiffnessMatrix = Assembler.CreateTotalStiffnessMatrix();
+            }
+           
+            double[] currentU = explicitSolution[i - 1];
+            double[] currentdU = explicitVelocity[i - 1];
+            double[] currentddU = explicitAcceleration[i - 1];
+
+            double[] a0U = VectorOperations.VectorScalarProductNew(currentU, aConstants[0]);
+            double[] a2dU = VectorOperations.VectorScalarProductNew(currentdU, aConstants[2]);
+            double[] a3ddU = VectorOperations.VectorScalarProductNew(currentddU, aConstants[3]);
+            double[] a1U = VectorOperations.VectorScalarProductNew(currentU, aConstants[1]);
+            double[] a4dU = VectorOperations.VectorScalarProductNew(currentdU, aConstants[4]);
+            double[] a5ddU = VectorOperations.VectorScalarProductNew(currentddU, aConstants[5]);
+
+            double[] vectorSum1 = VectorOperations.VectorVectorAddition(a0U,
+                                        VectorOperations.VectorVectorAddition(a2dU, a3ddU));
+            double[] vectorSum2 = VectorOperations.VectorVectorAddition(a1U,
+                                        VectorOperations.VectorVectorAddition(a4dU, a5ddU));
+
+            double[] part1 = VectorOperations.MatrixVectorProduct(TotalMassMatrix, vectorSum1);
+            double[] part2 = VectorOperations.MatrixVectorProduct(TotalDampingMatrix, vectorSum2);
+
+            double[] hatR = VectorOperations.VectorVectorAddition(ExternalForcesVector,
+                            VectorOperations.VectorVectorAddition(part1, part2));
+            return hatR;
+        }
+
+        private double[] CalculateAccelerationNewmark(int step, List<double> aConstants)
+        {
+            double[] dUt = explicitVelocity[step - 1];
+            double[] ut = explicitSolution[step - 1];
+            double[] utplusDt = explicitSolution[step];
+            double[] ddUt = explicitAcceleration[step - 1];
+
+            double[] part1 = VectorOperations.VectorScalarProductNew(
+                                VectorOperations.VectorVectorSubtraction(utplusDt, ut), aConstants[0]);
+            double[] part2 = VectorOperations.VectorScalarProductNew(dUt, aConstants[2]);
+            double[] part3 = VectorOperations.VectorScalarProductNew(ddUt, aConstants[3]);
+
+            double[] ddUtplusDt = VectorOperations.VectorVectorSubtraction(part1,
+                                    VectorOperations.VectorVectorAddition(part2, part3));
+            return ddUtplusDt;
+        }
+
+        private double[] CalculateVelocityNewmark(int step, List<double> aConstants)
+        {
+            double[] dUt = explicitVelocity[step - 1];
+            double[] ddUt = explicitAcceleration[step - 1];
+            double[] ddUtplusDt = explicitAcceleration[step];
+
+            double[] part1 = VectorOperations.VectorScalarProductNew(ddUt, aConstants[6]);
+            double[] part2 = VectorOperations.VectorScalarProductNew(ddUtplusDt, aConstants[7]);
+
+            double[] dUtplusDt = VectorOperations.VectorVectorAddition(dUt,
+                                    VectorOperations.VectorVectorAddition(part1, part2));
+            return dUtplusDt;
+        }
+
+        public void SolveNewmark()
+        {
+            List<double> aConstants = CalculateIntegrationConstantsNewmark();
+            double[,] hatStiffnessMatrixNewmark = CalculateHatKMatrixNewmark(aConstants);
+            explicitSolution.Add(0, InitialValues.InitialDisplacementVector);
+            explicitVelocity.Add(0, InitialValues.InitialVelocityVector);
+            explicitAcceleration.Add(0, CalculateInitialAccelerations());
+            TimeAtEachStep.Add(0, 0.0);
+            double[] nextSolution;
+            for (int i = 1; i < timeStepsNumber; i++)
+            {
+                double time = i * timeStep + InitialValues.InitialTime;
+
+                if (ActivateNonLinearSolution == false)
+                {
+                    double[] hatRVectorNewmark = CalculateHatRVectorNewmark(i, aConstants);
+                    nextSolution = LinearSolver.Solve(hatStiffnessMatrixNewmark, hatRVectorNewmark);
+                    Console.WriteLine("Solution for Load Step {0} is:", i);
+                    VectorOperations.PrintVector(nextSolution);
+                }
+                else
+                {
+                    double[] hatRVector = CalculateHatRVectorNL(i);
+                    throw new Exception("Not implemented");
+                    //nextSolution = NewtonIterations(hatRVector);
+                    Console.WriteLine("Solution for Load Step {0} is:", i);
+                    VectorOperations.PrintVector(nextSolution);
+                }
+                explicitSolution.Add(i, nextSolution);
+                explicitAcceleration.Add(i, CalculateAccelerationNewmark(i, aConstants));
+                explicitVelocity.Add(i, CalculateVelocityNewmark(i, aConstants));
+                TimeAtEachStep.Add(i, time);
+            }
+            //ExportToFile.ExportExplicitResults(explicitSolution, TimeAtEachStep, 1, 5000);
+        }
+        #endregion
     }
 }

@@ -144,12 +144,12 @@ namespace FEC
             newSolu.LinearScheme = new PCGSolver();
             newSolu.NonLinearScheme = new LoadControlledNewtonRaphson();
             newSolu.ActivateNonLinearSolver = true;
-            newSolu.NonLinearScheme.numberOfLoadSteps = 10;
+            newSolu.NonLinearScheme.numberOfLoadSteps = 100;
 
             double[] externalForces = new double[462];
             for (int i = 441; i <= 462; i+=2)
             {
-                externalForces[i] = -50000.0;
+                externalForces[i] = -10000.0;
             }
             newSolu.AssemblyData = elementsAssembly;
             newSolu.Solve(externalForces);
@@ -178,12 +178,12 @@ namespace FEC
             newSolver.ExternalForcesVector = new double[462];
             for (int i = 441; i <= 462; i += 2)
             {
-                newSolver.ExternalForcesVector[i] = -50000.0;
+                newSolver.ExternalForcesVector[i] = -10000.0;
             }
             newSolver.LinearSolver = new CholeskyFactorization();
             newSolver.ActivateNonLinearSolution = true;
             newSolver.SolveExplicit();
-            newSolver.PrintExplicitSolution();
+            //newSolver.PrintExplicitSolution();
         }
 
     }

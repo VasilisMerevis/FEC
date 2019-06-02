@@ -34,12 +34,12 @@ namespace FEC
             //CentralDifferencesTest.SolveExample();
             //DynamicExample.RunExample();
             //TwoQuadsDynamicExample.RunExample();
-            //ExplicitLinearExample.SolveExample();
+            ExplicitLinearExample.SolveNewmarkExample();
             //BeamDynamicExample.RunExample();
-            TwoQuadsInContactNewExample.RunDynamicExample();
+            //TwoQuadsInContactNewExample.RunDynamicExample();
 
             //var twoBlocks = new TwoBlocksInContact();
-            //twoBlocks.RunDynamicExample();
+            //twoBlocks.RunStaticExample();
             
             Console.ReadLine();
 
