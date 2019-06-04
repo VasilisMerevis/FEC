@@ -510,9 +510,7 @@ namespace FEC
                 }
                 else
                 {
-                    double[] hatRVector = CalculateHatRVectorNL(i);
-                    throw new Exception("Not implemented");
-                    //nextSolution = NewtonIterations(hatRVector);
+                    nextSolution = NewtonIterationsNewmark(ExternalForcesVector, i, aConstants);
                     Console.WriteLine("Solution for Load Step {0} is:", i);
                     VectorOperations.PrintVector(nextSolution);
                 }
@@ -522,6 +520,96 @@ namespace FEC
                 TimeAtEachStep.Add(i, time);
             }
             //ExportToFile.ExportExplicitResults(explicitSolution, TimeAtEachStep, 1, 5000);
+        }
+
+        private double[] CalculateHatRVectorNewmarkNL(int i, List<double> aConstants, double[] previousIterationSolution)
+        {
+            double[,] TotalMassMatrix;
+            double[,] TotalDampingMatrix;
+            double[,] TotalStiffnessMatrix;
+            if (CustomMassMatrix != null)
+            {
+                TotalMassMatrix = CustomMassMatrix;
+                TotalDampingMatrix = CustomDampingMatrix;
+                TotalStiffnessMatrix = CustomStiffnessMatrix;
+            }
+            else
+            {
+                TotalMassMatrix = Assembler.CreateTotalMassMatrix();
+                TotalDampingMatrix = Assembler.CreateTotalDampingMatrix();
+                TotalStiffnessMatrix = Assembler.CreateTotalStiffnessMatrix();
+            }
+
+            double[] currentU = explicitSolution[i - 1];
+            double[] currentdU = explicitVelocity[i - 1];
+            double[] currentddU = explicitAcceleration[i - 1];
+
+            double[] a0U = VectorOperations.VectorScalarProductNew(
+                               VectorOperations.VectorVectorSubtraction(currentU, previousIterationSolution), aConstants[0]);
+            double[] a2dU = VectorOperations.VectorScalarProductNew(currentdU, aConstants[2]);
+            double[] a3ddU = VectorOperations.VectorScalarProductNew(currentddU, aConstants[3]);
+            double[] a1U = VectorOperations.VectorScalarProductNew(currentU, aConstants[1]);
+            double[] a4dU = VectorOperations.VectorScalarProductNew(currentdU, aConstants[4]);
+            double[] a5ddU = VectorOperations.VectorScalarProductNew(currentddU, aConstants[5]);
+
+            double[] vectorSum1 = VectorOperations.VectorVectorAddition(a0U,
+                                        VectorOperations.VectorVectorAddition(a2dU, a3ddU));
+            double[] vectorSum2 = VectorOperations.VectorVectorAddition(a1U,
+                                        VectorOperations.VectorVectorAddition(a4dU, a5ddU));
+
+            double[] part1 = VectorOperations.MatrixVectorProduct(TotalMassMatrix, vectorSum1);
+            double[] part2 = VectorOperations.MatrixVectorProduct(TotalDampingMatrix, vectorSum2);
+
+            double[] hatR = VectorOperations.VectorVectorAddition(ExternalForcesVector,
+                            VectorOperations.VectorVectorAddition(part1, part2));
+            return hatR;
+        }
+
+        private double[] NewtonIterationsNewmark(double[] forceVector, int stepNumber, List<double> aConstants)
+        {
+
+            lambda = 1.0 / numberOfLoadSteps;
+            //double[] incrementDf = VectorOperations.VectorScalarProductNew(forceVector, lambda);
+            double[] solutionVector = new double[forceVector.Length];
+            double[] deltaU = new double[solutionVector.Length];
+            double[] internalForcesTotalVector;
+            double[] residual;
+            double residualNorm;
+            double[] hatR;
+
+            solutionVector = explicitSolution.Values.Last();
+
+            Assembler.UpdateDisplacements(solutionVector);
+
+            //Assembler.UpdateAccelerations(explicitAcceleration.Values.Last());
+            hatR = CalculateHatRVectorNewmarkNL(stepNumber, aConstants, solutionVector);
+            internalForcesTotalVector = Assembler.CreateTotalInternalForcesVector();
+            residual = VectorOperations.VectorVectorSubtraction(hatR, internalForcesTotalVector);
+            residual = VectorOperations.VectorVectorSubtraction(forceVector, Assembler.CreateTotalInternalForcesVector());
+            int iteration = 0;
+            Array.Clear(deltaU, 0, deltaU.Length);
+
+            for (int i = 0; i < maxIterations; i++)
+            {
+                double[,] tangentMatrix = CalculateHatKMatrixNewmark(aConstants);
+                deltaU = LinearSolver.Solve(tangentMatrix, residual);
+                solutionVector = VectorOperations.VectorVectorAddition(solutionVector, deltaU);
+                Assembler.UpdateDisplacements(solutionVector);
+                //Assembler.UpdateAccelerations(CalculateAccelerations());
+                hatR = CalculateHatRVectorNewmarkNL(stepNumber, aConstants, solutionVector);
+                internalForcesTotalVector = Assembler.CreateTotalInternalForcesVector();
+                residual = VectorOperations.VectorVectorSubtraction(hatR, internalForcesTotalVector);
+                residualNorm = VectorOperations.VectorNorm2(residual);
+                if (residualNorm < tolerance)
+                {
+                    break;
+                }
+                iteration = iteration + 1;
+            }
+            Console.WriteLine(iteration);
+            if (iteration >= maxIterations) Console.WriteLine("Newton-Raphson: Solution not converged at current iterations");
+
+            return solutionVector;
         }
         #endregion
     }
