@@ -494,7 +494,7 @@ namespace FEC
             double[,] hatStiffnessMatrixNewmark = CalculateHatKMatrixNewmark(aConstants);
             explicitSolution.Add(0, InitialValues.InitialDisplacementVector);
             explicitVelocity.Add(0, InitialValues.InitialVelocityVector);
-            explicitAcceleration.Add(0, CalculateInitialAccelerations());
+            explicitAcceleration.Add(0, CalculateInitialAccelerationsNewmark());
             TimeAtEachStep.Add(0, 0.0);
             double[] nextSolution;
             for (int i = 1; i < timeStepsNumber; i++)
@@ -565,6 +565,22 @@ namespace FEC
             return hatR;
         }
 
+        private double[] CalculateInitialAccelerationsNewmark() //Bathe page 771
+        {
+            if (CustomStiffnessMatrix != null) return InitialValues.InitialAccelerationVector;
+            int step = explicitSolution.Count - 1;
+            Assembler.UpdateDisplacements(explicitSolution[step]);
+            double[,] stiffness = Assembler.CreateTotalStiffnessMatrix();
+            double[,] mass = Assembler.CreateTotalMassMatrix();
+
+            double[] Ku = VectorOperations.MatrixVectorProduct(stiffness, explicitSolution[step]);
+            double[] RHS = VectorOperations.VectorVectorSubtraction(ExternalForcesVector, Ku);
+
+            double[] acceleration = LinearSolver.Solve(mass, RHS);
+
+            return acceleration;
+        }
+
         private double[] NewtonIterationsNewmark(double[] forceVector, int stepNumber, List<double> aConstants)
         {
 
@@ -606,7 +622,7 @@ namespace FEC
                 }
                 iteration = iteration + 1;
             }
-            Console.WriteLine(iteration);
+            //Console.WriteLine(iteration);
             if (iteration >= maxIterations) Console.WriteLine("Newton-Raphson: Solution not converged at current iterations");
 
             return solutionVector;

@@ -34,9 +34,9 @@ namespace FEC
             //CentralDifferencesTest.SolveExample();
             //DynamicExample.RunExample();
             //TwoQuadsDynamicExample.RunExample();
-            ExplicitLinearExample.SolveNewmarkExample();
+            //ExplicitLinearExample.SolveExample();
             //BeamDynamicExample.RunExample();
-            //TwoQuadsInContactNewExample.RunDynamicExample();
+            TwoQuadsInContactNewExample.RunDynamicExample();
 
             //var twoBlocks = new TwoBlocksInContact();
             //twoBlocks.RunStaticExample();
