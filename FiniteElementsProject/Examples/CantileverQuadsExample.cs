@@ -13,9 +13,9 @@ namespace FEC
             nodes[1] = new Node(0.0, 0.01);
             nodes[2] = new Node(0.3, 0.01);
             nodes[3] = new Node(0.6, 0.01);
-            nodes[4] = new Node(0.6, 0.31);
-            nodes[5] = new Node(0.3, 0.31);
-            nodes[6] = new Node(0.0, 0.31);
+            nodes[4] = new Node(0.6, 0.12);
+            nodes[5] = new Node(0.3, 0.12);
+            nodes[6] = new Node(0.0, 0.12);
             
             return nodes;
         }
@@ -51,7 +51,12 @@ namespace FEC
             Dictionary<int, IElementProperties> elementProperties = new Dictionary<int, IElementProperties>();
             elementProperties[1] = new ElementProperties(E, A, type);
             elementProperties[2] = new ElementProperties(E, A, type);
-            
+            for (int i = 1; i <= 2; i++)
+            {
+                elementProperties[i].Density = 8000.0;
+                elementProperties[i].Thickness = 0.1;
+            }
+
             return elementProperties;
         }
 
@@ -66,23 +71,46 @@ namespace FEC
             return assembly;
         }
 
-        public static void RunExample()
+        public static void RunStaticExample()
         {
             IAssembly elementsAssembly = CreateAssembly();
             elementsAssembly.CreateElementsAssembly();
             elementsAssembly.ActivateBoundaryConditions = true;
-            double[,] globalStiffnessMatrix = elementsAssembly.CreateTotalStiffnessMatrix();
+            //double[,] globalStiffnessMatrix = elementsAssembly.CreateTotalStiffnessMatrix();
 
             ISolver newSolu = new StaticSolver();
             newSolu.LinearScheme = new PCGSolver();
-            //newSolu.NonLinearScheme = new LoadControlledNewtonRaphson();
-            //newSolu.ActivateNonLinearSolver = true;
-            //newSolu.NonLinearScheme.numberOfLoadSteps = 15;
+            newSolu.NonLinearScheme = new LoadControlledNewtonRaphson();
+            newSolu.ActivateNonLinearSolver = true;
+            newSolu.NonLinearScheme.numberOfLoadSteps = 20;
 
-            double[] externalForces = new double[] { 0, 0, 0, 0, 0, -88000000, 0, 0 };
+            double[] externalForces = new double[] { 0, 0, 0, 0, 0, -2 * 22000000, 0, 0 };
             newSolu.AssemblyData = elementsAssembly;
             newSolu.Solve(externalForces);
             newSolu.PrintSolution();
+        }
+
+        public static void RunDynamicExample()
+        {
+            IAssembly elementsAssembly = CreateAssembly();
+            elementsAssembly.CreateElementsAssembly();
+            elementsAssembly.ActivateBoundaryConditions = true;
+
+            InitialConditions initialValues = new InitialConditions();
+            initialValues.InitialAccelerationVector = new double[8];
+            initialValues.InitialDisplacementVector = new double[8];
+            //initialValues.InitialDisplacementVector[6] = -0.02146;
+            initialValues.InitialVelocityVector = new double[8];
+            initialValues.InitialTime = 0.0;
+
+            ExplicitSolver newSolver = new ExplicitSolver(1.0, 100);
+            newSolver.Assembler = elementsAssembly;
+
+            newSolver.InitialValues = initialValues;
+            newSolver.ExternalForcesVector = new double[] { 0, 0, 0, 0, 0, -2 * 22000000, 0, 0 };
+            newSolver.LinearSolver = new PCGSolver();
+            newSolver.ActivateNonLinearSolution = true;
+            newSolver.SolveNewmark();
         }
 
     }

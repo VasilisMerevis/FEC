@@ -66,7 +66,12 @@ namespace FEC
             elementProperties[2] = new ElementProperties(E, A, type);
             elementProperties[3] = new ElementProperties(E, A, type);
             elementProperties[4] = new ElementProperties(E, A, type);
-            elementProperties[5] = new ElementProperties(E, A, type2);
+            elementProperties[5] = new ElementProperties(E*100, A, type2);
+            for (int i = 1; i <= 4; i++)
+            {
+                elementProperties[i].Density = 8000.0;
+                elementProperties[i].Thickness = 0.1;
+            }
             return elementProperties;
         }
 
@@ -98,6 +103,30 @@ namespace FEC
             newSolu.AssemblyData = elementsAssembly;
             newSolu.Solve(externalForces);
             newSolu.PrintSolution();
+        }
+
+        public static void RunDynamicExample()
+        {
+            IAssembly elementsAssembly = CreateAssembly();
+            elementsAssembly.CreateElementsAssembly();
+            elementsAssembly.ActivateBoundaryConditions = true;
+
+            InitialConditions initialValues = new InitialConditions();
+            initialValues.InitialAccelerationVector = new double[16];
+            initialValues.InitialDisplacementVector = new double[16];
+            //initialValues.InitialDisplacementVector[7] = -0.02146;
+            initialValues.InitialVelocityVector = new double[16];
+            initialValues.InitialTime = 0.0;
+
+            ExplicitSolver newSolver = new ExplicitSolver(1.0, 10000);
+            newSolver.Assembler = elementsAssembly;
+
+            newSolver.InitialValues = initialValues;
+            newSolver.ExternalForcesVector = new double[] { 0, 0, 0, 0, 0, -3.0 * 2200000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            newSolver.LinearSolver = new GaussSolver();
+            newSolver.ActivateNonLinearSolution = true;
+            newSolver.SolveNewmark();
+            //newSolver.PrintExplicitSolution();
         }
 
     }

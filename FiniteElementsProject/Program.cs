@@ -29,14 +29,14 @@ namespace FEC
             //Console.WriteLine();
             //TwoBeamsInContactQuadsExample.RunDynamicExample();
             //Console.WriteLine();
-            //TwoBeamsInFrContactQuadsExample.RunExample();
-            //CantileverQuadsExample.RunExample();
+            TwoBeamsInFrContactQuadsExample.RunDynamicExample();
+            //CantileverQuadsExample.RunDynamicExample();
             //CentralDifferencesTest.SolveExample();
             //DynamicExample.RunExample();
             //TwoQuadsDynamicExample.RunExample();
             //ExplicitLinearExample.SolveExample();
             //BeamDynamicExample.RunExample();
-            TwoQuadsInContactNewExample.RunDynamicExample();
+            //TwoQuadsInContactNewExample.RunDynamicExample();
 
             //var twoBlocks = new TwoBlocksInContact();
             //twoBlocks.RunStaticExample();
