@@ -60,7 +60,7 @@ namespace FEC
             double E = 200.0e9;
             double A = 0.01;
             string type = "Quad4";
-            string type2 = "ContactNtS2Df";
+            string type2 = "ContactNtS2D";
             Dictionary<int, IElementProperties> elementProperties = new Dictionary<int, IElementProperties>();
             elementProperties[1] = new ElementProperties(E, A, type);
             elementProperties[2] = new ElementProperties(E, A, type);
@@ -118,7 +118,7 @@ namespace FEC
             initialValues.InitialVelocityVector = new double[16];
             initialValues.InitialTime = 0.0;
 
-            ExplicitSolver newSolver = new ExplicitSolver(1.0, 10000);
+            ExplicitSolver newSolver = new ExplicitSolver(1.0, 100);
             newSolver.Assembler = elementsAssembly;
 
             newSolver.InitialValues = initialValues;

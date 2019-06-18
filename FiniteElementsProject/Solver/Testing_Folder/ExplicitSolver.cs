@@ -519,7 +519,7 @@ namespace FEC
                 explicitVelocity.Add(i, CalculateVelocityNewmark(i, aConstants));
                 TimeAtEachStep.Add(i, time);
             }
-            //ExportToFile.ExportExplicitResults(explicitSolution, TimeAtEachStep, 1, 5000);
+            ExportToFile.ExportExplicitResults(explicitSolution, TimeAtEachStep, 1, 1);
         }
 
         private double[] CalculateHatRVectorNewmarkNL(int i, List<double> aConstants, double[] previousIterationSolution)
