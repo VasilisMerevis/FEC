@@ -367,8 +367,8 @@ namespace FEC
         #region Newmark_Method
         private List<double> CalculateIntegrationConstantsNewmark()
         {
-            double a = 0.25;
-            double delta = 0.5;
+            double a = 0.25*1.21;
+            double delta = 0.5+0.1;
             List<double> aConst = new List<double>();
             //{
             //    [0] = 1.0 / (a * Math.Pow(timeStep, 2.0)),

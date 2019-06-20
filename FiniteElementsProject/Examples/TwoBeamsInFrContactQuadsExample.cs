@@ -116,14 +116,17 @@ namespace FEC
             initialValues.InitialDisplacementVector = new double[16];
             //initialValues.InitialDisplacementVector[7] = -0.02146;
             initialValues.InitialVelocityVector = new double[16];
+            initialValues.InitialVelocityVector = new double[] { -5000, -5000, -5000, -5000,
+            -5000, -5000, -5000, -5000, -5000, -5000, -5000, -5000, -5000, -5000, -5000, -5000};
             initialValues.InitialTime = 0.0;
 
-            ExplicitSolver newSolver = new ExplicitSolver(1.0, 100);
+            ExplicitSolver newSolver = new ExplicitSolver(1.0, 20);
             newSolver.Assembler = elementsAssembly;
 
             newSolver.InitialValues = initialValues;
-            newSolver.ExternalForcesVector = new double[] { 0, 0, 0, 0, 0, -3.0 * 2200000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-            newSolver.LinearSolver = new GaussSolver();
+            //newSolver.ExternalForcesVector = new double[] { 0, 0, 0, 0, 0, -3.0 * 2200000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            newSolver.ExternalForcesVector = new double[16];
+            newSolver.LinearSolver = new LUFactorization();
             newSolver.ActivateNonLinearSolution = true;
             newSolver.SolveNewmark();
             //newSolver.PrintExplicitSolution();
